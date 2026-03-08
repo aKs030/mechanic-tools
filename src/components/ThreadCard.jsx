@@ -9,14 +9,14 @@ function trimFixed(value, digits) {
 
 function formatWithUnit(value, unit, tone = 'text-white') {
   return (
-    <div className="flex items-baseline justify-end gap-2 text-right">
+    <div className="flex items-baseline justify-end gap-1 text-right">
       <span
         className={`font-mono text-[1rem] font-black leading-none tracking-[-0.04em] sm:text-[1.12rem] ${tone}`}
       >
         {value}
       </span>
       {unit ? (
-        <span className="text-[0.62rem] font-bold uppercase tracking-[0.08em] text-white/62 sm:text-[0.7rem]">
+        <span className="text-[0.58rem] font-bold uppercase tracking-[0.04em] text-white/50 sm:text-[0.66rem]">
           {unit}
         </span>
       ) : null}
@@ -38,7 +38,9 @@ export default function ThreadCard({ size, data }) {
       note: 'Schlüsselweite',
       value: (
         <div className="flex items-baseline justify-end gap-3 sm:gap-4">
-          <span className="font-mono text-[1.8rem] font-black tracking-[-0.05em] text-white">M{size}</span>
+          <span className="font-mono text-[1.8rem] font-black tracking-[-0.05em] text-white">
+            M{size}
+          </span>
           <span className="font-mono text-[1.8rem] font-black tracking-[-0.05em] text-accent">
             {trimFixed(data.iso, 1)}
           </span>
@@ -88,64 +90,86 @@ export default function ThreadCard({ size, data }) {
   ]
 
   return (
-    <article className="card mx-auto w-full max-w-[25rem] overflow-hidden rounded-[30px] border border-white/12 !p-0 sm:max-w-[35rem]">
-      <div className="px-4 pb-4 pt-4 sm:px-7 sm:pb-6 sm:pt-6">
-        <SectionHeading
-          icon={
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/16 bg-accent/10 text-accent">
-              <SlidersHorizontal size={22} />
-            </div>
-          }
-          title="Gewinde Details"
-        />
+    <article className="card mx-auto w-full overflow-hidden border-x-0 border-y border-white/12 !p-0 sm:rounded-[30px] sm:border-x">
+      <div className="px-3.5 pb-5 pt-5 sm:px-8 sm:pb-8 sm:pt-8">
+        <div className="relative grid grid-cols-2 gap-4 lg:gap-20">
+          {/* Vertikaler Trenner */}
+          <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-white/[0.08]" />
 
-        <div className="mt-2.5 sm:mt-3">
-          {threadRows.map(row => (
-            <SpecRow key={row.label} label={row.label} hint={row.hint} note={row.note} value={row.value} />
-          ))}
+          {/* Linke Spalte: Gewinde */}
+          <section className="flex flex-col">
+            <SectionHeading
+              icon={
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/16 bg-accent/10 text-accent sm:h-12 sm:w-12 sm:rounded-2xl">
+                  <SlidersHorizontal size={18} className="sm:size-[22px]" />
+                </div>
+              }
+              title="Gewinde"
+            />
+
+            <div className="mt-3 flex-1 space-y-0.5">
+              {threadRows.map(row => (
+                <SpecRow
+                  key={row.label}
+                  label={row.label}
+                  hint={row.hint}
+                  note={row.note}
+                  value={row.value}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* Rechte Spalte: Bohren & Senken */}
+          <section className="flex flex-col">
+            <SectionHeading
+              icon={
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent2/16 bg-accent2/10 text-accent2 sm:h-12 sm:w-12 sm:rounded-2xl">
+                  <Drill size={18} className="sm:size-[22px]" />
+                </div>
+              }
+              title="Bohren"
+            />
+
+            <div className="mt-3 flex-1 space-y-0.5">
+              {drillRows.map(row => (
+                <SpecRow key={row.label} label={row.label} hint={row.hint} value={row.value} />
+              ))}
+            </div>
+          </section>
         </div>
 
         <SectionDivider />
-        <SectionHeading
-          icon={
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-accent2/16 bg-accent2/10 text-accent2">
-              <Drill size={22} />
+
+        <section>
+          <SectionHeading
+            icon={
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-300/16 bg-amber-300/10 text-amber-300">
+                <Gauge size={20} />
+              </div>
+            }
+            title="Drehmomente (Nm)"
+          />
+
+          {hasTorque ? (
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              {['8.8', '10.9', '12.9'].map(grade => (
+                <TorqueCell
+                  key={grade}
+                  label={`FK ${grade}`}
+                  value={formatWithUnit(
+                    trimFixed(torque[grade], Number(torque[grade]) >= 10 ? 0 : 2),
+                    'Nm'
+                  )}
+                />
+              ))}
             </div>
-          }
-          title="Bohren & Senken"
-        />
-
-        <div className="mt-2.5 sm:mt-3">
-          {drillRows.map(row => (
-            <SpecRow key={row.label} label={row.label} hint={row.hint} value={row.value} />
-          ))}
-        </div>
-
-        <SectionDivider />
-        <SectionHeading
-          icon={
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-300/16 bg-amber-300/10 text-amber-300">
-              <Gauge size={20} />
-            </div>
-          }
-          title="Drehmomente (Nm)"
-        />
-
-        {hasTorque ? (
-          <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-4 sm:gap-2.5">
-            {['8.8', '10.9', '12.9'].map(grade => (
-              <TorqueCell
-                key={grade}
-                label={`FK ${grade}`}
-                value={formatWithUnit(trimFixed(torque[grade], Number(torque[grade]) >= 10 ? 0 : 2), 'Nm')}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="mt-3 text-[0.95rem] font-medium italic text-white/45 sm:text-[1rem]">
-            Keine Drehmomentdaten für diese Größe verfügbar.
-          </p>
-        )}
+          ) : (
+            <p className="mt-3 text-[0.95rem] font-medium italic text-white/45 sm:text-[1rem]">
+              Keine Drehmomentdaten für diese Größe verfügbar.
+            </p>
+          )}
+        </section>
       </div>
     </article>
   )
@@ -155,30 +179,36 @@ function SectionHeading({ icon, title }) {
   return (
     <div className="flex items-center gap-3">
       {icon}
-      <h3 className="font-mono text-[1.28rem] font-black tracking-[-0.02em] text-white sm:text-[1.8rem]">{title}</h3>
+      <h3 className="font-mono text-[1.28rem] font-black tracking-[-0.02em] text-white sm:text-[1.8rem]">
+        {title}
+      </h3>
     </div>
   )
 }
 
 function SectionDivider() {
-  return <div className="my-3 border-t border-white/[0.07] sm:my-4" />
+  return <div className="my-5 border-t border-white/[0.06] sm:my-8" />
 }
 
 function SpecRow({ label, hint, note, value }) {
   return (
-    <div className="grid grid-cols-[minmax(8.5rem,11.5rem)_max-content] items-start gap-2 py-1 sm:grid-cols-[minmax(9.5rem,13rem)_max-content] sm:gap-2.5 sm:py-1.5">
+    <div className="grid grid-cols-[6.5rem_auto] items-center gap-2 border-b border-white/[0.03] py-2 last:border-0 sm:grid-cols-[8.5rem_auto] sm:py-2.5">
       <div className="min-w-0">
-        <div className="text-[0.66rem] font-black uppercase tracking-[0.18em] text-white/42 sm:text-[0.76rem]">
+        <div className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-white/40 sm:text-[0.72rem]">
           {label}
         </div>
-        {hint ? <div className="mt-0.5 text-[0.56rem] font-medium text-white/28 sm:text-[0.62rem]">{hint}</div> : null}
+        {hint ? (
+          <div className="mt-0.5 text-[0.52rem] font-medium text-white/25 sm:text-[0.58rem]">
+            {hint}
+          </div>
+        ) : null}
         {note ? (
-          <div className="mt-1 text-[0.56rem] font-black uppercase tracking-[0.16em] text-white/42 sm:text-[0.62rem]">
+          <div className="mt-1 text-[0.52rem] font-black uppercase tracking-[0.16em] text-white/40 sm:text-[0.58rem]">
             {note}
           </div>
         ) : null}
       </div>
-      <div className="shrink-0">{value}</div>
+      <div className="flex justify-start">{value}</div>
     </div>
   )
 }

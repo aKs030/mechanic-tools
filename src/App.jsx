@@ -32,15 +32,15 @@ function App() {
         <div className="absolute bottom-[-8rem] left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-white/[0.03] blur-3xl" />
       </div>
 
-      <div className="relative mx-auto flex h-full max-w-md flex-col px-3 pb-[calc(0.8rem+env(safe-area-inset-bottom))] pt-[calc(0.8rem+env(safe-area-inset-top))] sm:max-w-5xl sm:px-6 sm:pb-[calc(1rem+env(safe-area-inset-bottom))] sm:pt-[calc(1rem+env(safe-area-inset-top))]">
-        <main className="mx-auto min-h-0 w-full max-w-4xl flex-1">
+      <div className="relative mx-auto flex h-full w-full flex-col pb-[calc(0.8rem+env(safe-area-inset-bottom))] pt-[calc(0.8rem+env(safe-area-inset-top))] sm:px-6 sm:pb-[calc(1rem+env(safe-area-inset-bottom))] sm:pt-[calc(1rem+env(safe-area-inset-top))]">
+        <main className="mx-auto min-h-0 w-full max-w-5xl flex-1">
           <ViewportFit fitKey={`${activeTool}:${threadView}`}>
             {activeTool === 'threads' && <ThreadCalculator view={threadView} />}
             {activeTool === 'camera' && <CameraScanner />}
           </ViewportFit>
         </main>
 
-        <div className="mx-auto mt-2 w-full max-w-4xl shrink-0 sm:mt-3">
+        <div className="mx-auto mt-2 w-full max-w-5xl shrink-0 px-2 sm:mt-3 sm:px-0">
           <ToolMenu active={activeTool} threadView={threadView} onSelect={handleSelect} />
         </div>
       </div>
