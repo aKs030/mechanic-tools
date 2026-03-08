@@ -4,6 +4,8 @@
 @theme {
   --color-bg: #09111f;
   --color-panel: #101b30;
+  --color-card: #0d182c;
+  --color-card-deep: #060d18;
   --color-accent: #5ee7c2;
   --color-accent2: #5aa9ff;
   --color-accent3: #f4a73b;
@@ -56,11 +58,29 @@
 
 @layer components {
   .card {
-    @apply relative rounded-[28px] border border-white/[0.08] bg-linear-to-br from-white/[0.06] via-white/[0.04] to-white/[0.03] p-5 shadow-[0_24px_80px_rgba(3,6,18,0.45)] backdrop-blur-2xl sm:p-6;
+    @apply relative rounded-[28px] border p-5 backdrop-blur-2xl sm:p-6;
+    border-color: rgba(255, 255, 255, 0.08);
+    background:
+      radial-gradient(circle at 12% 0%, rgba(94, 231, 194, 0.12) 0%, transparent 34%),
+      radial-gradient(circle at 100% 0%, rgba(90, 169, 255, 0.14) 0%, transparent 30%),
+      linear-gradient(180deg, rgba(17, 29, 49, 0.96) 0%, rgba(11, 21, 38, 0.96) 54%, rgba(6, 13, 24, 0.98) 100%);
+    box-shadow:
+      0 24px 80px rgba(3, 6, 18, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.02);
   }
 
   .app-shell {
     @apply relative rounded-[32px] border border-white/[0.08] bg-linear-to-r from-white/[0.05] via-white/[0.035] to-white/[0.03] shadow-[0_28px_90px_rgba(3,6,18,0.4)] backdrop-blur-2xl;
+  }
+
+  .card-surface {
+    border-color: rgba(255, 255, 255, 0.06);
+    background:
+      linear-gradient(180deg, rgba(9, 20, 38, 0.88) 0%, rgba(5, 12, 24, 0.94) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 12px 36px rgba(1, 4, 12, 0.22);
   }
 
   .section-label {

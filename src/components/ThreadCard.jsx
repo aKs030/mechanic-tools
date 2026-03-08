@@ -92,7 +92,7 @@ export default function ThreadCard({ size, data }) {
   ]
 
   return (
-    <div className="grid gap-2 pb-1 md:gap-2.5 lg:grid-cols-2">
+    <div className="grid items-start gap-2 pb-1 md:gap-2.5 lg:grid-cols-2">
       {sections.map(section => (
         <CategoryCard
           key={section.title}
@@ -113,7 +113,7 @@ function CategoryCard({ title, meta, items, tone = 'default', layout = 'list' })
 
   return (
     <section
-      className={`card w-full min-w-0 overflow-hidden px-2 py-2 sm:px-3 sm:py-2.5 ${style.border}`}
+      className={`card self-start w-full min-w-0 overflow-hidden px-2 py-2 sm:px-3 sm:py-2.5 ${style.border}`}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/22 to-transparent" />
       <div
@@ -173,7 +173,7 @@ function CategoryCard({ title, meta, items, tone = 'default', layout = 'list' })
             ))}
           </div>
         ) : (
-          <div className="w-full overflow-hidden rounded-[15px] border border-white/[0.06] bg-black/18 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:rounded-[17px]">
+          <div className="card-surface w-full overflow-hidden rounded-[15px] border sm:rounded-[17px]">
             {items.map(item => (
               <ListRow
                 key={item.label}
@@ -192,14 +192,14 @@ function CategoryCard({ title, meta, items, tone = 'default', layout = 'list' })
 
 function ListRow({ label, value, labelClass, valueClass }) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 border-b border-white/[0.06] px-2.5 py-2 last:border-b-0 sm:gap-x-2.5 sm:px-3 sm:py-2.5">
+    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-b border-white/[0.06] px-2.5 py-2 last:border-b-0 sm:gap-x-2.5 sm:px-3 sm:py-2.5">
       <div
-        className={`pr-1.5 text-[0.5rem] font-black uppercase tracking-[0.18em] sm:text-[0.58rem] sm:tracking-[0.2em] ${labelClass}`}
+        className={`shrink-0 text-[0.5rem] font-black uppercase tracking-[0.14em] sm:text-[0.58rem] sm:tracking-[0.18em] ${labelClass}`}
       >
         {label}
       </div>
       <div
-        className={`text-right font-mono text-[0.92rem] font-black tracking-[-0.04em] sm:text-[1.06rem] ${valueClass}`}
+        className={`min-w-0 break-words font-mono text-[0.92rem] font-black leading-tight tracking-[-0.04em] sm:text-[1.06rem] ${valueClass}`}
       >
         {value}
       </div>
@@ -210,7 +210,7 @@ function ListRow({ label, value, labelClass, valueClass }) {
 function CompactPairCard({ label, value, labelClass, valueClass, className = '' }) {
   return (
     <div
-      className={`rounded-[13px] border border-white/[0.06] bg-black/18 px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:rounded-[15px] sm:px-2.5 sm:py-2 ${className}`}
+      className={`card-surface rounded-[13px] border px-2 py-1.5 sm:rounded-[15px] sm:px-2.5 sm:py-2 ${className}`}
     >
       <div className="flex items-baseline justify-between gap-1.5">
         <div
@@ -230,7 +230,7 @@ function CompactPairCard({ label, value, labelClass, valueClass, className = '' 
 
 function MetricValueCard({ label, value, labelClass, valueClass }) {
   return (
-    <div className="rounded-[13px] border border-white/[0.06] bg-black/18 px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:rounded-[15px] sm:px-2.5 sm:py-2">
+    <div className="card-surface rounded-[13px] border px-2 py-1.5 sm:rounded-[15px] sm:px-2.5 sm:py-2">
       <div
         className={`mb-1 text-[0.5rem] font-black uppercase tracking-[0.18em] sm:text-[0.56rem] sm:tracking-[0.2em] ${labelClass}`}
       >

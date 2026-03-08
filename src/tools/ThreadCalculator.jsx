@@ -35,19 +35,22 @@ export default function ThreadCalculator() {
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      <div className="card overflow-hidden px-3 py-3 sm:px-5 sm:py-4">
-        <div className="mb-2.5 flex items-center justify-between gap-3 sm:mb-3">
+      <section className="relative overflow-hidden px-1 pb-1 pt-1 sm:px-2">
+        <div className="pointer-events-none absolute inset-x-8 top-12 h-28 rounded-full bg-[radial-gradient(circle_at_center,rgba(94,231,194,0.12)_0%,rgba(90,169,255,0.1)_42%,transparent_72%)] blur-3xl" />
+        <div className="relative mb-2.5 flex items-center justify-between gap-3 px-2 sm:mb-3 sm:px-3">
           <div className="section-label">SELECTOR WHEEL</div>
           <button
             onClick={() => setView('tabelle')}
-            className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1.5 text-[0.56rem] font-black uppercase tracking-[0.22em] text-white/45 transition-colors hover:text-white sm:px-3 sm:py-2 sm:text-[0.62rem] sm:tracking-[0.28em]"
+            className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-[0.56rem] font-black uppercase tracking-[0.22em] text-white/45 shadow-[0_10px_28px_rgba(0,0,0,0.24)] transition-colors hover:text-white sm:px-3 sm:py-2 sm:text-[0.62rem] sm:tracking-[0.28em]"
           >
             Tabelle
           </button>
         </div>
 
-        <WheelSelector sizes={SIZES} selectedSize={size} onSelect={setSize} />
-      </div>
+        <div className="relative">
+          <WheelSelector sizes={SIZES} selectedSize={size} onSelect={setSize} />
+        </div>
+      </section>
 
       <ThreadCard size={size} data={DB[size]} />
     </div>
