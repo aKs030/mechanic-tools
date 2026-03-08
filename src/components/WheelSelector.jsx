@@ -1,13 +1,17 @@
-import { useRef, useEffect, useCallback, useMemo } from 'react'
+import { useRef, useEffect, useCallback, useMemo, useState } from 'react'
 import { DB } from '../data/threads'
 import SearchBar from './SearchBar'
 
+const QUICK_BUTTON_WIDTH = 76
+
 export default function WheelSelector({ sizes, selectedSize, onSelect }) {
   const trackRef = useRef(null)
+  const quickGridRef = useRef(null)
   const itemRefs = useRef([])
   const scrollingTimeoutRef = useRef(null)
   const scrollRafRef = useRef(0)
   const isProgrammaticScroll = useRef(false)
+  const [quickColumns, setQuickColumns] = useState(4)
 
   const vibrate = pattern => {
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
@@ -17,6 +21,20 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
 
   // Triple the array for infinite scrolling
   const infiniteSizes = useMemo(() => [...sizes, ...sizes, ...sizes], [sizes])
+
+  const quickSourceSizes = useMemo(
+    () =>
+      sizes.filter(sizeStr => {
+        const size = Number(sizeStr)
+        return Number.isFinite(size) && size >= 16
+      }),
+    [sizes],
+  )
+
+  const quickSizesFromM16 = useMemo(
+    () => quickSourceSizes.slice(0, quickColumns * 2),
+    [quickSourceSizes, quickColumns],
+  )
 
   // Dynamic color coding based on thread size
   const getAccentColor = sizeStr => {
@@ -178,6 +196,30 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
     }
   }, [updateVisuals, sizes])
 
+  useEffect(() => {
+    if (!quickGridRef.current) return
+
+    const node = quickGridRef.current
+
+    const updateQuickColumns = () => {
+      const maxColumnsFromData = Math.max(1, Math.floor(quickSourceSizes.length / 2))
+      const columnsByWidth = Math.max(1, Math.floor(node.clientWidth / QUICK_BUTTON_WIDTH))
+      const nextColumns = Math.min(columnsByWidth, maxColumnsFromData)
+      setQuickColumns(prev => (prev === nextColumns ? prev : nextColumns))
+    }
+
+    updateQuickColumns()
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(updateQuickColumns)
+      observer.observe(node)
+      return () => observer.disconnect()
+    }
+
+    window.addEventListener('resize', updateQuickColumns)
+    return () => window.removeEventListener('resize', updateQuickColumns)
+  }, [quickSourceSizes.length])
+
   const handlePrev = () => {
     const idx = sizes.indexOf(selectedSize)
     const prevIdx = (idx - 1 + sizes.length) % sizes.length
@@ -303,6 +345,46 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
               <path d="m9 18 6-6-6-6" />
             </svg>
           </button>
+        </div>
+      </div>
+
+      <div className="w-full max-w-xl px-2">
+        <div
+          ref={quickGridRef}
+          className="grid gap-1.5"
+          style={{
+            gridTemplateColumns: `repeat(${quickColumns}, ${QUICK_BUTTON_WIDTH}px)`,
+            justifyContent: 'center',
+            justifyItems: 'center',
+          }}
+        >
+          {quickSizesFromM16.map(s => {
+            const isActive = s === selectedSize
+            const swPrimary = DB[s].iso
+            const swSecondary = DB[s].din
+            const swLabel = swSecondary ? `${swPrimary}|${swSecondary}` : swPrimary
+
+            return (
+              <button
+                key={`quick-${s}`}
+                type="button"
+                onClick={() => {
+                  onSelect(s)
+                  vibrate(8)
+                }}
+                className={`w-full rounded-lg border px-2.5 py-2 text-center leading-tight transition-all duration-200 active:scale-95 ${
+                  isActive
+                    ? 'border-accent/50 bg-accent/14 shadow-[0_0_24px_rgba(94,231,194,0.22)]'
+                    : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+                }`}
+              >
+                <div className="font-mono text-[0.86rem] font-black tracking-tight text-white">M{s}</div>
+                <div className={`text-[0.64rem] font-semibold ${isActive ? 'text-accent2/85' : 'text-white/55'}`}>
+                  SW{swLabel}
+                </div>
+              </button>
+            )
+          })}
         </div>
       </div>
     </div>
