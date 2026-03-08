@@ -50,6 +50,7 @@ export default function FullTorqueTable() {
         <div className="mt-4 flex flex-col gap-2.5 md:flex-row">
           <input
             type="text"
+            aria-label="Tabelle durchsuchen"
             placeholder="Suche M6, M8, M10 ..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}

@@ -37,6 +37,7 @@ export default function SearchBar({ sizes, onSelect }) {
         </div>
         <input
           type="text"
+          aria-label="Gewindegröße suchen"
           placeholder="Gewindegröße suchen... (z.B. M8)"
           value={query}
           onChange={e => {
