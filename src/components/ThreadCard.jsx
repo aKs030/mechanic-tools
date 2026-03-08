@@ -259,11 +259,8 @@ export default function ThreadCard({ size, data }) {
                   const val = Number(torque[grade])
 
                   return (
-                    <div
-                      key={grade}
-                      className="flex flex-col items-center min-w-[2.2rem] sm:min-w-[3.5rem]"
-                    >
-                      <span className="text-[0.4rem] font-black text-white/20 sm:text-[0.55rem]">
+                    <div key={grade} className="flex flex-col items-center min-w-11 sm:min-w-16">
+                      <span className="text-[0.6rem] font-black tracking-tight text-white sm:text-[0.75rem]">
                         {grade}
                       </span>
                       <AnimatedNumber
