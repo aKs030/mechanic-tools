@@ -92,23 +92,59 @@ export default function ThreadCard({ size, data }) {
   return (
     <article className="card mx-auto w-full overflow-hidden border-x-0 border-y border-white/12 !p-0 sm:rounded-[30px] sm:border-x">
       <div className="px-3.5 pb-5 pt-5 sm:px-8 sm:pb-8 sm:pt-8">
+        {/* Neue dynamische Überschrift über zwei Spalten */}
+        <div className="mb-8 flex items-center justify-center gap-6 border-b border-white/10 pb-8 sm:gap-14">
+          <div className="flex flex-col text-right">
+            <span className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-white/40">
+              Gewinde
+            </span>
+            <span className="text-[0.55rem] font-medium text-white/25">DIN 13-1</span>
+          </div>
+
+          <div className="flex items-center gap-4 sm:gap-8">
+            <span className="font-mono text-4xl font-black tracking-tighter text-white sm:text-6xl">
+              M{size}
+            </span>
+            <div className="h-10 w-px bg-white/10 sm:h-14" />
+
+            {/* Schlüsselweite Label LINKS vom Wert */}
+            <div className="flex flex-col text-right">
+              <span className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-white/40">
+                Schlüsselweite
+              </span>
+              <span className="text-[0.55rem] font-medium text-white/25 italic">
+                {data.din ? 'ISO | DIN' : 'ISO'}
+              </span>
+            </div>
+
+            <div className="flex items-center text-center">
+              {data.din ? (
+                <div className="flex items-center gap-3 sm:gap-5">
+                  <span className="font-mono text-4xl font-black tracking-tighter text-accent sm:text-6xl">
+                    {trimFixed(data.iso, 1)}
+                  </span>
+                  <div className="h-10 w-px bg-white/10 sm:h-14" />
+                  <span className="font-mono text-4xl font-black tracking-tighter text-white/50 sm:text-6xl">
+                    {trimFixed(data.din, 1)}
+                  </span>
+                </div>
+              ) : (
+                <span className="font-mono text-4xl font-black tracking-tighter text-accent sm:text-6xl">
+                  {trimFixed(data.iso, 1)}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="relative grid grid-cols-2 gap-4 lg:gap-20">
           {/* Vertikaler Trenner */}
           <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-white/[0.08]" />
 
           {/* Linke Spalte: Gewinde */}
           <section className="flex flex-col">
-            <SectionHeading
-              icon={
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/16 bg-accent/10 text-accent sm:h-12 sm:w-12 sm:rounded-2xl">
-                  <SlidersHorizontal size={18} className="sm:size-[22px]" />
-                </div>
-              }
-              title="Gewinde"
-            />
-
-            <div className="mt-3 flex-1 space-y-0.5">
-              {threadRows.map(row => (
+            <div className="mt-1 flex-1 space-y-0.5">
+              {threadRows.slice(1).map(row => (
                 <SpecRow
                   key={row.label}
                   label={row.label}
@@ -122,16 +158,7 @@ export default function ThreadCard({ size, data }) {
 
           {/* Rechte Spalte: Bohren & Senken */}
           <section className="flex flex-col">
-            <SectionHeading
-              icon={
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent2/16 bg-accent2/10 text-accent2 sm:h-12 sm:w-12 sm:rounded-2xl">
-                  <Drill size={18} className="sm:size-[22px]" />
-                </div>
-              }
-              title="Bohren"
-            />
-
-            <div className="mt-3 flex-1 space-y-0.5">
+            <div className="mt-1 flex-1 space-y-0.5">
               {drillRows.map(row => (
                 <SpecRow key={row.label} label={row.label} hint={row.hint} value={row.value} />
               ))}

@@ -211,9 +211,10 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
                   </span>
                 </div>
                 <span
-                  className={`font-mono text-[10px] mt-1 font-medium tracking-widest ${isSelected ? 'text-white/60' : 'text-gray-600'} transition-colors duration-500`}
+                  className={`font-mono text-[10px] mt-1 font-medium tracking-tight ${isSelected ? 'text-white/60' : 'text-gray-600'} transition-colors duration-500`}
                 >
-                  SW {DB[s].iso}
+                  {DB[s].iso}
+                  {DB[s].din ? ` | ${DB[s].din}` : ''}
                 </span>
               </div>
             )
