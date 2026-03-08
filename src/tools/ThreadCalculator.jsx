@@ -11,8 +11,8 @@ export default function ThreadCalculator({ view = 'rechner' }) {
 
   if (view === 'tabelle') {
     return (
-      <div className="space-y-4">
-        <div className="card px-4 py-3 sm:px-5">
+      <div className="w-full space-y-3 sm:space-y-4">
+        <div className="card px-4 py-2.5 sm:px-5 sm:py-3">
           <div className="flex items-center gap-3">
             <div>
               <div className="section-label mb-1">Ansicht</div>
@@ -27,10 +27,10 @@ export default function ThreadCalculator({ view = 'rechner' }) {
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <section className="relative overflow-hidden px-1 pb-1 pt-3 sm:px-2 sm:pt-4">
+    <div className="w-full space-y-2 sm:space-y-3">
+      <section className="relative overflow-hidden px-1 pb-1 pt-2 sm:px-2 sm:pt-3">
         <div className="pointer-events-none absolute inset-x-8 top-10 h-28 rounded-full bg-[radial-gradient(circle_at_center,rgba(94,231,194,0.12)_0%,rgba(90,169,255,0.1)_42%,transparent_72%)] blur-3xl" />
-        <div className="relative pt-3 sm:pt-2">
+        <div className="relative pt-2 sm:pt-1">
           <WheelSelector sizes={SIZES} selectedSize={size} onSelect={setSize} />
         </div>
       </section>

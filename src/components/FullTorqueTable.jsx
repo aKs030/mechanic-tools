@@ -27,14 +27,14 @@ export default function FullTorqueTable() {
 
   return (
     <div className="card overflow-hidden p-0">
-      <div className="border-b border-white/8 bg-linear-to-r from-white/[0.04] to-transparent p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+      <div className="border-b border-white/8 bg-linear-to-r from-white/[0.04] to-transparent p-4 sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <div className="section-label mb-3">Normtabelle</div>
-            <h2 className="text-2xl font-black tracking-[-0.05em] text-white">
+            <div className="section-label mb-2">Normtabelle</div>
+            <h2 className="text-[clamp(1.2rem,3.2vw,1.75rem)] font-black tracking-[-0.05em] text-white">
               ISO-Regelgewinde im direkten Vergleich
             </h2>
-            <p className="mt-2 text-sm leading-6 text-white/55">
+            <p className="mt-2 text-sm leading-5 text-white/55">
               Filtere nach Groesse, sortiere die Reihe und blende bei Bedarf die
               Durchgangsbohrungen ein.
             </p>
@@ -47,17 +47,17 @@ export default function FullTorqueTable() {
           </div>
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 md:flex-row">
+        <div className="mt-4 flex flex-col gap-2.5 md:flex-row">
           <input
             type="text"
             placeholder="Suche M6, M8, M10 ..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="min-w-[220px] flex-1 rounded-[20px] border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-white/28 focus:border-accent/45 focus:outline-none"
+            className="min-w-[220px] flex-1 rounded-[20px] border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder:text-white/28 focus:border-accent/45 focus:outline-none"
           />
           <button
             onClick={() => setShowClearance(!showClearance)}
-            className={`rounded-[20px] border px-4 py-3 text-xs font-black uppercase tracking-[0.26em] transition-all ${
+            className={`rounded-[20px] border px-4 py-2.5 text-xs font-black uppercase tracking-[0.26em] transition-all ${
               showClearance
                 ? 'border-accent2/30 bg-accent2/10 text-accent2'
                 : 'border-white/10 bg-white/[0.04] text-white/45 hover:text-white'
@@ -68,7 +68,7 @@ export default function FullTorqueTable() {
         </div>
       </div>
 
-      <div className="max-h-[65vh] overflow-auto no-scrollbar">
+      <div className="overflow-hidden">
         <table className="w-full min-w-[760px] border-collapse text-left">
           <thead className="sticky top-0 z-10 bg-bg/94 backdrop-blur-xl">
             <tr className="border-b border-white/8 bg-white/[0.03]">
@@ -128,7 +128,7 @@ export default function FullTorqueTable() {
         </table>
       </div>
 
-      <div className="border-t border-white/8 bg-black/20 px-5 py-4 text-sm text-white/42">
+      <div className="border-t border-white/8 bg-black/20 px-4 py-3 text-xs sm:px-5 sm:py-4 sm:text-sm text-white/42">
         Werte basieren auf DIN 13-1, ISO 261 und ISO 273 Richtwerten. Drehmomente sind als
         praxisnahe Orientierung zu lesen.
       </div>

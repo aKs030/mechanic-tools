@@ -6,24 +6,24 @@ export default function CameraScanner() {
       <div className="absolute -left-16 top-8 h-56 w-56 rounded-full bg-accent2/10 blur-3xl" />
       <div className="absolute -right-8 bottom-0 h-48 w-48 rounded-full bg-accent/10 blur-3xl" />
 
-      <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)] lg:items-center">
+      <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)] lg:items-center">
         <div>
-          <div className="section-label mb-3">Scanner-Konzept</div>
-          <h2 className="text-3xl font-black tracking-[-0.06em] text-white">
+          <div className="section-label mb-2">Scanner-Konzept</div>
+          <h2 className="text-[clamp(1.4rem,4vw,1.95rem)] font-black tracking-[-0.05em] text-white">
             Kamera-Ansicht mit klarerem Fokus auf Erkennung und Workflow.
           </h2>
-          <p className="mt-4 max-w-xl text-sm leading-6 text-white/56">
+          <p className="mt-3 max-w-xl text-sm leading-5 text-white/56">
             Die Oberflaeche zeigt nicht nur einen Platzhalter, sondern eine glaubwuerdige
             Vorschau auf den spaeteren Scan-Ablauf fuer Schraubenkopf, Gewinde und Werkzeugwahl.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="mt-4 grid gap-2.5 sm:grid-cols-3">
             <ScannerFeature icon={Ruler} title="Pitch" text="Steigung aus Kontur und Kantenbild." />
             <ScannerFeature icon={Wrench} title="SW" text="Werkzeugmass direkt aus dem Kopfprofil." />
             <ScannerFeature icon={Gauge} title="Check" text="Schneller Abgleich mit Normdaten." />
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-4 flex flex-wrap gap-2.5">
             <button className="inline-flex items-center gap-2 rounded-full border border-accent2/28 bg-accent2/12 px-6 py-3 text-sm font-bold text-white transition-all hover:border-accent2/45 hover:bg-accent2/18">
               <Camera size={18} />
               Scanner starten
@@ -85,12 +85,12 @@ export default function CameraScanner() {
 
 function ScannerFeature({ icon: Icon, title, text }) {
   return (
-    <div className="rounded-[22px] border border-white/10 bg-black/18 p-4">
-      <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-accent/10 text-accent">
-        <Icon size={18} />
+    <div className="rounded-[20px] border border-white/10 bg-black/18 p-3">
+      <div className="mb-2.5 flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+        <Icon size={16} />
       </div>
       <div className="text-sm font-bold text-white">{title}</div>
-      <p className="mt-2 text-sm leading-6 text-white/46">{text}</p>
+      <p className="mt-1.5 text-sm leading-5 text-white/46">{text}</p>
     </div>
   )
 }

@@ -35,7 +35,15 @@ export default function ThreadCard({ size, data }) {
     {
       label: 'Gewinde',
       hint: 'Regelgewinde DIN 13-1',
-      value: <span className="font-mono text-[1.8rem] font-black tracking-[-0.05em] text-white">M{size}</span>,
+      note: 'Schlüsselweite',
+      value: (
+        <div className="flex items-baseline justify-end gap-3 sm:gap-4">
+          <span className="font-mono text-[1.8rem] font-black tracking-[-0.05em] text-white">M{size}</span>
+          <span className="font-mono text-[1.8rem] font-black tracking-[-0.05em] text-accent">
+            {trimFixed(data.iso, 1)}
+          </span>
+        </div>
+      ),
     },
     {
       label: 'Steigung P',
@@ -55,10 +63,6 @@ export default function ThreadCard({ size, data }) {
       label: 'Mindest-Material',
       hint: 'Grob-Richtwert',
       value: formatWithUnit(trimFixed(2.5 * pitch, 2), 'mm'),
-    },
-    {
-      label: 'Schlüsselweite',
-      value: formatWithUnit(trimFixed(data.iso, 1), '', 'text-accent'),
     },
   ]
 
@@ -97,7 +101,7 @@ export default function ThreadCard({ size, data }) {
 
         <div className="mt-2.5 sm:mt-3">
           {threadRows.map(row => (
-            <SpecRow key={row.label} label={row.label} hint={row.hint} value={row.value} />
+            <SpecRow key={row.label} label={row.label} hint={row.hint} note={row.note} value={row.value} />
           ))}
         </div>
 
@@ -128,9 +132,9 @@ export default function ThreadCard({ size, data }) {
         />
 
         {hasTorque ? (
-          <div className="mt-3 sm:mt-4">
+          <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-4 sm:gap-2.5">
             {['8.8', '10.9', '12.9'].map(grade => (
-              <SpecRow
+              <TorqueCell
                 key={grade}
                 label={`FK ${grade}`}
                 value={formatWithUnit(trimFixed(torque[grade], Number(torque[grade]) >= 10 ? 0 : 2), 'Nm')}
@@ -160,7 +164,7 @@ function SectionDivider() {
   return <div className="my-3 border-t border-white/[0.07] sm:my-4" />
 }
 
-function SpecRow({ label, hint, value }) {
+function SpecRow({ label, hint, note, value }) {
   return (
     <div className="grid grid-cols-[minmax(8.5rem,11.5rem)_max-content] items-start gap-2 py-1 sm:grid-cols-[minmax(9.5rem,13rem)_max-content] sm:gap-2.5 sm:py-1.5">
       <div className="min-w-0">
@@ -168,8 +172,24 @@ function SpecRow({ label, hint, value }) {
           {label}
         </div>
         {hint ? <div className="mt-0.5 text-[0.56rem] font-medium text-white/28 sm:text-[0.62rem]">{hint}</div> : null}
+        {note ? (
+          <div className="mt-1 text-[0.56rem] font-black uppercase tracking-[0.16em] text-white/42 sm:text-[0.62rem]">
+            {note}
+          </div>
+        ) : null}
       </div>
       <div className="shrink-0">{value}</div>
+    </div>
+  )
+}
+
+function TorqueCell({ label, value }) {
+  return (
+    <div className="card-surface rounded-xl border border-white/[0.08] px-2 py-2 sm:px-2.5 sm:py-2.5">
+      <div className="text-[0.62rem] font-black uppercase tracking-[0.16em] text-white/42 sm:text-[0.68rem]">
+        {label}
+      </div>
+      <div className="mt-1">{value}</div>
     </div>
   )
 }
