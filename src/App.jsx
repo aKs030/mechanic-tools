@@ -7,6 +7,7 @@ import ViewportFit from './components/ViewportFit'
 function App() {
   const [activeTool, setActiveTool] = useState('threads')
   const [threadView, setThreadView] = useState('rechner')
+  const shouldFitViewport = !(activeTool === 'threads' && threadView === 'tabelle')
 
   const handleSelect = next => {
     if (next === 'threads') {
@@ -33,11 +34,19 @@ function App() {
       </div>
 
       <div className="relative mx-auto flex h-full w-full flex-col pb-[calc(0.8rem+env(safe-area-inset-bottom))] pt-[calc(0.8rem+env(safe-area-inset-top))] sm:px-6 sm:pb-[calc(1rem+env(safe-area-inset-bottom))] sm:pt-[calc(1rem+env(safe-area-inset-top))]">
-        <main className="mx-auto min-h-0 w-full max-w-5xl flex-1">
-          <ViewportFit fitKey={`${activeTool}:${threadView}`}>
-            {activeTool === 'threads' && <ThreadCalculator view={threadView} />}
-            {activeTool === 'camera' && <CameraScanner />}
-          </ViewportFit>
+        <main
+          className={`mx-auto min-h-0 w-full max-w-5xl flex-1 ${
+            shouldFitViewport ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'
+          }`}
+        >
+          {shouldFitViewport ? (
+            <ViewportFit fitKey={`${activeTool}:${threadView}`}>
+              {activeTool === 'threads' && <ThreadCalculator view={threadView} />}
+              {activeTool === 'camera' && <CameraScanner />}
+            </ViewportFit>
+          ) : (
+            <ThreadCalculator view={threadView} />
+          )}
         </main>
 
         <div className="mx-auto mt-2 w-full max-w-5xl shrink-0 px-2 sm:mt-3 sm:px-0">

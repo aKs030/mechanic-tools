@@ -32,7 +32,6 @@ export default function ViewportFit({ children, fitKey }) {
 
         const scale = Math.min(frameWidth / contentWidth, frameHeight / contentHeight, 1)
         const scaledWidth = contentWidth * scale
-        const scaledHeight = contentHeight * scale
 
         const next = {
           scale,

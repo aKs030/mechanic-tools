@@ -1,0 +1,51 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="76" y1="56" x2="448" y2="472" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#13233D" />
+      <stop offset="0.52" stop-color="#09111F" />
+      <stop offset="1" stop-color="#060B14" />
+    </linearGradient>
+    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(142 122) rotate(39.4) scale(220 252)">
+      <stop stop-color="#5EE7C2" stop-opacity="0.35" />
+      <stop offset="1" stop-color="#5EE7C2" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(384 150) rotate(122.6) scale(196 220)">
+      <stop stop-color="#5AA9FF" stop-opacity="0.28" />
+      <stop offset="1" stop-color="#5AA9FF" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="steel" x1="152" y1="128" x2="354" y2="362" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4FBFF" />
+      <stop offset="0.38" stop-color="#B8CAE2" />
+      <stop offset="1" stop-color="#6E86A5" />
+    </linearGradient>
+    <linearGradient id="accent" x1="132" y1="116" x2="362" y2="364" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5EE7C2" />
+      <stop offset="1" stop-color="#5AA9FF" />
+    </linearGradient>
+    <linearGradient id="hub" x1="224" y1="210" x2="286" y2="308" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4A73B" />
+      <stop offset="1" stop-color="#F07F21" />
+    </linearGradient>
+  </defs>
+
+  <rect x="28" y="28" width="456" height="456" rx="120" fill="url(#bg)" />
+  <rect x="28" y="28" width="456" height="456" rx="120" stroke="#FFFFFF" stroke-opacity="0.08" />
+  <circle cx="170" cy="124" r="176" fill="url(#glowA)" />
+  <circle cx="386" cy="150" r="156" fill="url(#glowB)" />
+
+  <g opacity="0.96">
+    <rect x="232" y="70" width="48" height="88" rx="20" fill="url(#accent)" />
+    <rect x="232" y="70" width="48" height="88" rx="20" transform="rotate(45 256 256)" fill="url(#accent)" />
+    <rect x="232" y="70" width="48" height="88" rx="20" transform="rotate(90 256 256)" fill="url(#accent)" />
+    <rect x="232" y="70" width="48" height="88" rx="20" transform="rotate(135 256 256)" fill="url(#accent)" />
+    <rect x="232" y="70" width="48" height="88" rx="20" transform="rotate(180 256 256)" fill="url(#accent)" />
+    <rect x="232" y="70" width="48" height="88" rx="20" transform="rotate(225 256 256)" fill="url(#accent)" />
+    <rect x="232" y="70" width="48" height="88" rx="20" transform="rotate(270 256 256)" fill="url(#accent)" />
+    <rect x="232" y="70" width="48" height="88" rx="20" transform="rotate(315 256 256)" fill="url(#accent)" />
+  </g>
+
+  <circle cx="256" cy="256" r="132" fill="#09111F" stroke="url(#steel)" stroke-width="34" />
+  <circle cx="256" cy="256" r="76" fill="#08101D" stroke="url(#accent)" stroke-width="16" />
+  <path d="M256 196L304 224V288L256 316L208 288V224L256 196Z" fill="url(#hub)" />
+  <path d="M256 220L283 236V276L256 292L229 276V236L256 220Z" fill="#09111F" opacity="0.9" />
+</svg>

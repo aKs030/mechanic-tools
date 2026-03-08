@@ -15,17 +15,21 @@
 @layer base {
   :root {
     color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
   }
 
   html {
     scroll-behavior: smooth;
     height: 100%;
     overflow: hidden;
+    overscroll-behavior-y: none;
   }
 
   body {
     @apply bg-bg text-white font-sans antialiased;
     margin: 0;
+    user-select: none;
+    -webkit-user-select: none;
     background-image:
       radial-gradient(circle at 50% -18%, rgba(94, 231, 194, 0.14) 0%, transparent 38%),
       radial-gradient(circle at 0% 8%, rgba(90, 169, 255, 0.14) 0%, transparent 32%),
@@ -53,6 +57,20 @@
   ::selection {
     background: rgba(94, 231, 194, 0.28);
     color: white;
+  }
+
+  button,
+  a,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  input,
+  textarea,
+  select {
+    user-select: auto;
+    -webkit-user-select: auto;
   }
 
   #root {

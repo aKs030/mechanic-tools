@@ -1,17 +1,33 @@
-import { Drill, Gauge, SlidersHorizontal } from 'lucide-react'
+import { Gauge } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
 import { CLEARANCE_DB, TORQUE_EXT_DB } from '../data/threads'
 
+const TORQUE_PRIORITY = {
+  4.6: 1,
+  5.6: 2,
+  6.8: 3,
+  8.8: 4,
+  10.9: 5,
+  12.9: 6,
+  'A2-70': 7,
+  'A4-80': 8,
+}
+
 function useAnimatedNumber(targetValue, duration = 400, decimals = 2) {
   const [displayValue, setDisplayValue] = useState(targetValue)
+  const displayValueRef = useRef(targetValue)
   const startTime = useRef(null)
   const startValue = useRef(targetValue)
   const frameId = useRef(null)
 
   useEffect(() => {
-    if (parseFloat(targetValue) === parseFloat(displayValue)) return
+    displayValueRef.current = displayValue
+  }, [displayValue])
 
-    startValue.current = parseFloat(displayValue) || 0
+  useEffect(() => {
+    if (parseFloat(targetValue) === parseFloat(displayValueRef.current)) return
+
+    startValue.current = parseFloat(displayValueRef.current) || 0
     startTime.current = null
 
     const animate = timestamp => {
@@ -31,7 +47,7 @@ function useAnimatedNumber(targetValue, duration = 400, decimals = 2) {
 
     frameId.current = requestAnimationFrame(animate)
     return () => cancelAnimationFrame(frameId.current)
-  }, [targetValue, decimals])
+  }, [targetValue, duration, decimals])
 
   return trimFixed(displayValue, decimals)
 }
@@ -44,13 +60,21 @@ function AnimatedNumber({ value, decimals = 1, className }) {
 function trimFixed(value, digits) {
   const n = Number(value)
   if (!Number.isFinite(n)) return '-'
-  return n.toFixed(digits).replace(/\.?0+$/, '')
+  const fixed = n.toFixed(digits)
+  return digits === 0 ? fixed : fixed.replace(/\.?0+$/, '')
+}
+
+function getTorqueDecimals(value) {
+  const numericValue = Number(value)
+  return numericValue >= 100 ? 0 : numericValue >= 10 ? 1 : 2
 }
 
 function formatWithUnit(value, unit, tone = 'text-white', isNumeric = true) {
+  const shouldAnimate = isNumeric && Number.isFinite(Number(value))
+
   return (
     <div className="flex items-baseline justify-end gap-1 text-right">
-      {isNumeric ? (
+      {shouldAnimate ? (
         <AnimatedNumber
           value={value}
           decimals={unit === 'mm' ? 3 : 2}
@@ -73,28 +97,22 @@ function formatWithUnit(value, unit, tone = 'text-white', isNumeric = true) {
 }
 
 export default function ThreadCard({ size, data }) {
+  const numericSize = Number(size)
   const clearance = CLEARANCE_DB[size] || null
   const torque = TORQUE_EXT_DB[size] || null
-  const hasTorque = Number(size) >= 2 && Boolean(torque)
+  const hasTorque = numericSize >= 2 && Boolean(torque)
+  const torqueEntries = hasTorque
+    ? Object.keys(torque)
+        .sort((a, b) => (TORQUE_PRIORITY[a] ?? 9) - (TORQUE_PRIORITY[b] ?? 9))
+        .map(grade => ({
+          grade,
+          value: torque[grade],
+        }))
+    : []
 
   const pitch = Number(data.pitch)
 
-  const threadRows = [
-    {
-      label: 'Gewinde',
-      hint: 'Regelgewinde DIN 13-1',
-      note: 'Schlüsselweite',
-      value: (
-        <div className="flex items-baseline justify-end gap-3 sm:gap-4">
-          <span className="font-mono text-[1.8rem] font-black tracking-[-0.05em] text-white">
-            M{size}
-          </span>
-          <span className="font-mono text-[1.8rem] font-black tracking-[-0.05em] text-accent">
-            {trimFixed(data.iso, 1)}
-          </span>
-        </div>
-      ),
-    },
+  const specRows = [
     {
       label: 'Steigung P',
       value: formatWithUnit(trimFixed(data.pitch, 2), 'mm'),
@@ -107,7 +125,7 @@ export default function ThreadCard({ size, data }) {
     {
       label: 'Einschraubtiefe',
       hint: 'Empfehlung (Stahl)',
-      value: formatWithUnit(trimFixed(1.2 * Number(size), 1), 'mm'),
+      value: formatWithUnit(trimFixed(1.2 * numericSize, 1), 'mm'),
     },
     {
       label: 'Mindest-Material',
@@ -140,7 +158,6 @@ export default function ThreadCard({ size, data }) {
   return (
     <article className="card mx-auto w-full overflow-hidden border-x-0 border-y border-white/12 !p-0 sm:rounded-[30px] sm:border-x">
       <div className="px-3.5 pb-5 pt-5 sm:px-8 sm:pb-8 sm:pt-8">
-        {/* Neue dynamische Überschrift über zwei Spalten */}
         <div className="mb-8 flex items-center justify-center gap-6 border-b border-white/10 pb-8 sm:gap-14">
           <div className="flex flex-col text-right">
             <span className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-white/40">
@@ -155,7 +172,6 @@ export default function ThreadCard({ size, data }) {
             </span>
             <div className="h-10 w-px bg-white/10 sm:h-14" />
 
-            {/* Schlüsselweite Label LINKS vom Wert */}
             <div className="flex flex-col text-right">
               <span className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-white/40">
                 Schlüsselweite
@@ -192,13 +208,11 @@ export default function ThreadCard({ size, data }) {
         </div>
 
         <div className="relative grid grid-cols-2 gap-4 lg:gap-20">
-          {/* Vertikaler Trenner */}
           <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-white/[0.08]" />
 
-          {/* Linke Spalte: Gewinde */}
           <section className="flex flex-col">
             <div className="mt-1 flex-1 space-y-0.5">
-              {threadRows.slice(1).map(row => (
+              {specRows.map(row => (
                 <SpecRow
                   key={row.label}
                   label={row.label}
@@ -210,7 +224,6 @@ export default function ThreadCard({ size, data }) {
             </div>
           </section>
 
-          {/* Rechte Spalte: Bohren & Senken */}
           <section className="flex flex-col">
             <div className="mt-1 flex-1 space-y-0.5">
               {drillRows.map(row => (
@@ -222,55 +235,31 @@ export default function ThreadCard({ size, data }) {
 
         <SectionDivider />
 
-        <section className="relative overflow-hidden rounded-[20px] border border-white/8 bg-white/4 p-2.5 sm:p-4">
+        <section className="relative w-full overflow-hidden rounded-[20px] border border-white/8 bg-white/4 px-2.5 py-3 sm:px-4 sm:py-4">
           <div className="absolute -right-12 -top-12 h-24 w-24 rounded-full bg-amber-400/5 blur-3xl opacity-20" />
 
-          <div className="mb-3 flex items-center justify-between px-1">
+          <div className="mb-2.5 flex items-center justify-between gap-2 sm:mb-3">
             <div className="flex items-center gap-1.5">
               <Gauge size={12} className="text-amber-300/50" />
               <h3 className="font-mono text-[0.6rem] font-black uppercase tracking-[0.12em] text-white/30 sm:text-[0.7rem]">
                 Drehmomente (NM)
               </h3>
+              <span className="text-[0.42rem] font-bold uppercase tracking-[0.08em] text-white/12 sm:hidden">
+                µ=0,14
+              </span>
             </div>
-            <span className="text-[0.45rem] font-bold text-white/10 uppercase tracking-widest">
+            <span className="hidden shrink-0 whitespace-nowrap text-right text-[0.45rem] font-bold text-white/10 uppercase tracking-widest sm:block">
               Standard Reibwert µ=0,14
             </span>
           </div>
 
           {hasTorque ? (
-            <div className="flex w-full items-end justify-center gap-2 px-0.5 sm:gap-5">
-              {Object.keys(torque)
-                .sort((a, b) => {
-                  const priority = {
-                    4.6: 1,
-                    5.6: 2,
-                    6.8: 3,
-                    8.8: 4,
-                    10.9: 5,
-                    12.9: 6,
-                    'A2-70': 7,
-                    'A4-80': 8,
-                  }
-                  return (priority[a] || 9) - (priority[b] || 9)
-                })
-                .map(grade => {
-                  const isHigh = grade === '10.9' || grade === '12.9'
-                  const isStainless = grade.startsWith('A')
-                  const val = Number(torque[grade])
-
-                  return (
-                    <div key={grade} className="flex flex-col items-center min-w-11 sm:min-w-16">
-                      <span className="text-[0.6rem] font-black tracking-tight text-white sm:text-[0.75rem]">
-                        {grade}
-                      </span>
-                      <AnimatedNumber
-                        value={torque[grade]}
-                        decimals={val >= 100 ? 0 : val >= 10 ? 1 : 2}
-                        className="font-mono text-[0.82rem] font-black tracking-tighter leading-none text-amber-400 sm:text-2xl"
-                      />
-                    </div>
-                  )
-                })}
+            <div className="pb-0.5 sm:overflow-x-auto sm:no-scrollbar">
+              <div className="grid w-full grid-cols-8 items-end gap-x-0 px-0 sm:mx-auto sm:flex sm:w-max sm:min-w-max sm:gap-3.5">
+                {torqueEntries.map(({ grade, value }) => (
+                  <TorqueTile key={grade} grade={grade} value={value} />
+                ))}
+              </div>
             </div>
           ) : (
             <p className="py-1 text-center text-[0.7rem] font-medium italic text-white/15">n/a</p>
@@ -281,19 +270,23 @@ export default function ThreadCard({ size, data }) {
   )
 }
 
-function SectionHeading({ icon, title }) {
-  return (
-    <div className="flex items-center gap-3">
-      {icon}
-      <h3 className="font-mono text-[1.28rem] font-black tracking-[-0.02em] text-white sm:text-[1.8rem]">
-        {title}
-      </h3>
-    </div>
-  )
-}
-
 function SectionDivider() {
   return <div className="my-5 border-t border-white/6 sm:my-8" />
+}
+
+function TorqueTile({ grade, value }) {
+  return (
+    <div className="flex min-w-0 flex-col items-center text-center sm:w-[4.15rem] sm:shrink-0">
+      <span className="w-full whitespace-nowrap text-[0.6rem] font-black tracking-[-0.05em] text-white sm:text-[0.82rem]">
+        {grade}
+      </span>
+      <AnimatedNumber
+        value={value}
+        decimals={getTorqueDecimals(value)}
+        className="font-mono text-[1.15rem] font-black leading-none tracking-[-0.07em] text-amber-400 sm:text-[1.85rem]"
+      />
+    </div>
+  )
 }
 
 function SpecRow({ label, hint, note, value }) {
@@ -315,17 +308,6 @@ function SpecRow({ label, hint, note, value }) {
         ) : null}
       </div>
       <div className="flex justify-start">{value}</div>
-    </div>
-  )
-}
-
-function TorqueCell({ label, value }) {
-  return (
-    <div className="card-surface rounded-xl border border-white/[0.08] px-2 py-2 sm:px-2.5 sm:py-2.5">
-      <div className="text-[0.62rem] font-black uppercase tracking-[0.16em] text-white/42 sm:text-[0.68rem]">
-        {label}
-      </div>
-      <div className="mt-1">{value}</div>
     </div>
   )
 }

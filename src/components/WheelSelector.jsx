@@ -11,7 +11,10 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
   const scrollingTimeoutRef = useRef(null)
   const scrollRafRef = useRef(0)
   const isProgrammaticScroll = useRef(false)
+  const selectedSizeRef = useRef(selectedSize)
   const [quickColumns, setQuickColumns] = useState(4)
+
+  selectedSizeRef.current = selectedSize
 
   const vibrate = pattern => {
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
@@ -176,7 +179,7 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
     // Initial jump to right position without smooth scrolling
     if (trackRef.current) {
       const track = trackRef.current
-      const idx = sizes.indexOf(selectedSize) + sizes.length
+      const idx = sizes.indexOf(selectedSizeRef.current) + sizes.length
       const item = itemRefs.current[idx]
       if (item) {
         track.scrollLeft = item.offsetLeft - track.clientWidth / 2 + item.clientWidth / 2

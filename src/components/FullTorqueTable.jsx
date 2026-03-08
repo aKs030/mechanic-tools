@@ -68,7 +68,7 @@ export default function FullTorqueTable() {
         </div>
       </div>
 
-      <div className="overflow-hidden">
+      <div className="overflow-x-auto overflow-y-hidden">
         <table className="w-full min-w-[760px] border-collapse text-left">
           <thead className="sticky top-0 z-10 bg-bg/94 backdrop-blur-xl">
             <tr className="border-b border-white/8 bg-white/[0.03]">
