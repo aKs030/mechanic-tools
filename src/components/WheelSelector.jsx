@@ -1,10 +1,12 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect, useCallback, useMemo } from 'react'
 import { DB } from '../data/threads'
+import SearchBar from './SearchBar'
 
 export default function WheelSelector({ sizes, selectedSize, onSelect }) {
   const trackRef = useRef(null)
   const itemRefs = useRef([])
   const scrollingTimeoutRef = useRef(null)
+  const scrollRafRef = useRef(0)
   const isProgrammaticScroll = useRef(false)
 
   const vibrate = pattern => {
@@ -14,8 +16,7 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
   }
 
   // Triple the array for infinite scrolling
-  const infiniteSizes = [...sizes, ...sizes, ...sizes]
-  const middleStartIdx = sizes.length
+  const infiniteSizes = useMemo(() => [...sizes, ...sizes, ...sizes], [sizes])
 
   // Dynamic color coding based on thread size
   const getAccentColor = sizeStr => {
@@ -79,7 +80,7 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
     return closestIdx
   }, [infiniteSizes])
 
-  const handleScroll = () => {
+  const processScroll = useCallback(() => {
     if (!trackRef.current) return
     const track = trackRef.current
     const itemWidth = 72
@@ -93,10 +94,10 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
     }
 
     const closestIdx = updateVisuals()
-    const actualSize = infiniteSizes[closestIdx]
+    const actualSize = closestIdx === undefined ? undefined : infiniteSizes[closestIdx]
 
     // Live-Update of the selected Size while scrolling!
-    if (actualSize !== selectedSize && !isProgrammaticScroll.current) {
+    if (actualSize && actualSize !== selectedSize && !isProgrammaticScroll.current) {
       onSelect(actualSize)
     }
 
@@ -105,7 +106,15 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
     scrollingTimeoutRef.current = setTimeout(() => {
       isProgrammaticScroll.current = false
     }, 150)
-  }
+  }, [infiniteSizes, onSelect, selectedSize, sizes.length, updateVisuals])
+
+  const handleScroll = useCallback(() => {
+    if (scrollRafRef.current) return
+    scrollRafRef.current = requestAnimationFrame(() => {
+      scrollRafRef.current = 0
+      processScroll()
+    })
+  }, [processScroll])
 
   // Smoother jump when clicking side items
   const handleItemClick = (s, idx) => {
@@ -158,7 +167,15 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
 
     updateVisuals()
     window.addEventListener('resize', updateVisuals)
-    return () => window.removeEventListener('resize', updateVisuals)
+    return () => {
+      window.removeEventListener('resize', updateVisuals)
+      if (scrollingTimeoutRef.current) {
+        clearTimeout(scrollingTimeoutRef.current)
+      }
+      if (scrollRafRef.current) {
+        cancelAnimationFrame(scrollRafRef.current)
+      }
+    }
   }, [updateVisuals, sizes])
 
   const handlePrev = () => {
@@ -176,7 +193,7 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
   }
 
   return (
-    <div className="relative flex w-full flex-col items-center overflow-hidden select-none">
+    <div className="relative flex w-full flex-col items-center overflow-x-hidden overflow-y-visible select-none">
       <div
         className="relative mt-2 h-[92px] w-full"
         style={{
@@ -241,7 +258,7 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
       </div>
 
       {/* Scroll Buttons - Modern Floating Pill */}
-      <div className="relative z-30 mb-3 mt-1">
+      <div className="relative z-50 mb-3 mt-1">
         <div className="flex items-center rounded-full border border-white/10 bg-white/6 p-1 shadow-[0_8px_24px_rgba(0,0,0,0.5)] backdrop-blur-xl">
           <button
             onClick={handlePrev}
@@ -263,6 +280,8 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
               <path d="m15 18-6-6 6-6" />
             </svg>
           </button>
+          <div className="w-px h-4 bg-white/20 mx-1"></div>
+          <SearchBar sizes={sizes} onSelect={onSelect} integrated />
           <div className="w-px h-4 bg-white/20 mx-1"></div>
           <button
             onClick={handleNext}

@@ -37,7 +37,7 @@ export default function ViewportFit({ children, fitKey }) {
         const next = {
           scale,
           offsetX: (frameWidth - scaledWidth) / 2,
-          offsetY: Math.max((frameHeight - scaledHeight) / 2, 0),
+          offsetY: 0,
           ready: true,
         }
 

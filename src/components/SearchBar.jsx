@@ -1,78 +1,179 @@
 import { Search } from 'lucide-react'
-import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
+import { useState, useRef, useEffect, useCallback } from 'react'
 
-export default function SearchBar({ sizes, onSelect }) {
+const POPOVER_WIDTH = 250
+const VIEWPORT_PADDING = 8
+const POPOVER_OFFSET = 8
+const POPOVER_ESTIMATED_HEIGHT = 320
+
+export default function SearchBar({ sizes, onSelect, integrated = false }) {
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
+  const [popoverStyle, setPopoverStyle] = useState({
+    top: 0,
+    left: 0,
+    width: POPOVER_WIDTH,
+  })
   const containerRef = useRef(null)
+  const buttonRef = useRef(null)
+  const popoverRef = useRef(null)
+  const inputRef = useRef(null)
 
-  const filtered = sizes.filter(s => s.toLowerCase().includes(query.toLowerCase())).slice(0, 5)
+  const normalizedQuery = query.trim().toLowerCase().replace(/^m\s*/i, '').replace(',', '.')
+  const filtered = (normalizedQuery ? sizes.filter(s => s.includes(normalizedQuery)) : sizes).slice(
+    0,
+    18,
+  )
+
+  const updatePopoverPosition = useCallback(() => {
+    if (!buttonRef.current || typeof window === 'undefined') return
+
+    const rect = buttonRef.current.getBoundingClientRect()
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    const width = Math.min(POPOVER_WIDTH, viewportWidth - VIEWPORT_PADDING * 2)
+    const left = Math.min(
+      Math.max(VIEWPORT_PADDING, rect.right - width),
+      viewportWidth - width - VIEWPORT_PADDING,
+    )
+
+    let top = rect.bottom + POPOVER_OFFSET
+    if (top + POPOVER_ESTIMATED_HEIGHT > viewportHeight - VIEWPORT_PADDING) {
+      top = Math.max(VIEWPORT_PADDING, rect.top - POPOVER_ESTIMATED_HEIGHT - POPOVER_OFFSET)
+    }
+
+    setPopoverStyle({ top, left, width })
+  }, [])
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+    if (!isOpen) return
+
+    updatePopoverPosition()
+
+    const handleOutside = event => {
+      const target = event.target
+      if (containerRef.current?.contains(target)) return
+      if (popoverRef.current?.contains(target)) return
+      setIsOpen(false)
+    }
+
+    const handleEscape = event => {
+      if (event.key === 'Escape') {
         setIsOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
 
-  return (
-    <div ref={containerRef} className="relative z-40 mb-4 w-full">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <div className="section-label mb-1">Schnellsuche</div>
-          <p className="text-sm text-white/55">Direkter Sprung zu einer Gewindegroesse.</p>
-        </div>
-        <div className="rounded-full border border-white/10 bg-black/20 px-3 py-2 text-[0.65rem] font-black uppercase tracking-[0.28em] text-white/45">
-          {query ? `${filtered.length} Treffer` : `${sizes.length} Normgroessen`}
-        </div>
-      </div>
+    const handleViewportUpdate = () => updatePopoverPosition()
 
-      <div className="group relative">
-        <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-linear-to-r from-accent/10 via-transparent to-accent2/8 opacity-0 blur-xl transition-opacity duration-300 group-focus-within:opacity-100" />
-        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-accent transition-colors">
-          <Search size={18} />
-        </div>
-        <input
-          type="text"
-          placeholder="Gewindegröße suchen... (z.B. M8)"
-          value={query}
-          onChange={e => {
-            setQuery(e.target.value)
-            setIsOpen(true)
-          }}
-          onFocus={() => setIsOpen(true)}
-          className="w-full rounded-[22px] border border-white/10 bg-white/[0.04] py-4 pl-12 pr-28 text-white placeholder:text-white/30 focus:border-accent/45 focus:bg-white/[0.07] focus:outline-none transition-all"
-        />
-        <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[0.62rem] font-black uppercase tracking-[0.3em] text-white/28">
-          M1.6 ... M64
-        </div>
-      </div>
+    document.addEventListener('mousedown', handleOutside)
+    document.addEventListener('touchstart', handleOutside, { passive: true })
+    document.addEventListener('keydown', handleEscape)
+    window.addEventListener('resize', handleViewportUpdate)
+    window.addEventListener('scroll', handleViewportUpdate, true)
 
-      {isOpen && query && (
-        <div className="absolute left-0 right-0 top-full mt-3 overflow-hidden rounded-[24px] border border-white/[0.08] bg-bg/94 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-3xl animate-in fade-in slide-in-from-top-2 duration-200">
-          {filtered.length > 0 ? (
-            filtered.map(s => (
+    return () => {
+      document.removeEventListener('mousedown', handleOutside)
+      document.removeEventListener('touchstart', handleOutside)
+      document.removeEventListener('keydown', handleEscape)
+      window.removeEventListener('resize', handleViewportUpdate)
+      window.removeEventListener('scroll', handleViewportUpdate, true)
+    }
+  }, [isOpen, updatePopoverPosition])
+
+  useEffect(() => {
+    if (!isOpen) return
+    requestAnimationFrame(() => {
+      inputRef.current?.focus()
+      updatePopoverPosition()
+    })
+  }, [isOpen, updatePopoverPosition])
+
+  useEffect(() => {
+    if (!isOpen) return
+    updatePopoverPosition()
+  }, [isOpen, query, updatePopoverPosition])
+
+  useEffect(() => {
+    if (!isOpen) {
+      setQuery('')
+    }
+  }, [isOpen])
+
+  const handleSelect = size => {
+    onSelect(size)
+    setQuery('')
+    setIsOpen(false)
+  }
+
+  const popoverContent = (
+    <>
+      <div
+        aria-hidden="true"
+        onClick={() => setIsOpen(false)}
+        className="fixed inset-0 z-[9990] bg-[linear-gradient(180deg,rgba(6,12,24,0.32),rgba(6,12,24,0.46))] backdrop-blur-[5px]"
+      />
+      <div
+        ref={popoverRef}
+        className="z-[10000] overflow-hidden rounded-[20px] border border-white/[0.08] bg-bg/95 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-3xl"
+        style={{
+          position: 'fixed',
+          top: `${popoverStyle.top}px`,
+          left: `${popoverStyle.left}px`,
+          width: `${popoverStyle.width}px`,
+        }}
+      >
+        <div className="border-b border-white/8 p-2">
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={event => setQuery(event.target.value)}
+            onKeyDown={event => {
+              if (event.key === 'Enter' && filtered.length > 0) {
+                handleSelect(filtered[0])
+              }
+            }}
+            placeholder="Suche z.B. M8"
+            className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-accent/45 focus:outline-none"
+          />
+        </div>
+        {filtered.length > 0 ? (
+          <div className="grid max-h-[250px] grid-cols-3 gap-1 overflow-y-auto p-2">
+            {filtered.map(s => (
               <button
                 key={s}
-                onClick={() => {
-                  onSelect(s)
-                  setQuery('')
-                  setIsOpen(false)
-                }}
-                className="flex w-full items-center justify-between border-b border-white/6 px-5 py-3 text-left text-gray-300 transition-colors last:border-0 hover:bg-accent/10 hover:text-white"
+                onClick={() => handleSelect(s)}
+                className="rounded-xl border border-white/8 bg-white/[0.03] px-2 py-2 text-center font-mono text-xs font-bold text-gray-200 transition-colors hover:bg-accent/10 hover:text-white"
               >
-                <span className="font-mono text-base font-bold">M{s}</span>
-                <span className="text-[10px] uppercase tracking-[0.28em] text-white/38">Waehlen</span>
+                M{s}
               </button>
-            ))
-          ) : (
-            <div className="px-5 py-4 text-sm text-white/45">Keine passende Gewindegroesse gefunden.</div>
-          )}
-        </div>
-      )}
+            ))}
+          </div>
+        ) : (
+          <div className="px-3 py-4 text-sm text-white/45">Keine passende Groesse gefunden.</div>
+        )}
+      </div>
+    </>
+  )
+
+  return (
+    <div ref={containerRef} className="relative z-[120]">
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-label="Gewindegroesse waehlen"
+        onClick={() => setIsOpen(open => !open)}
+        className={
+          integrated
+            ? 'group flex h-12 w-14 items-center justify-center rounded-full text-gray-400 transition-all duration-150 hover:bg-white/10 hover:text-white active:scale-90 active:bg-white/20'
+            : 'group inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-gray-300 shadow-[0_8px_26px_rgba(0,0,0,0.35)] transition-all hover:border-accent/35 hover:bg-accent/10 hover:text-accent active:scale-95'
+        }
+      >
+        <Search size={18} />
+      </button>
+
+      {isOpen && typeof document !== 'undefined' ? createPortal(popoverContent, document.body) : null}
     </div>
   )
 }
