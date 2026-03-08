@@ -266,9 +266,7 @@ export default function ThreadCard({ size, data }) {
                       <AnimatedNumber
                         value={torque[grade]}
                         decimals={val >= 100 ? 0 : val >= 10 ? 1 : 2}
-                        className={`font-mono text-[0.82rem] font-black tracking-tighter leading-none sm:text-2xl ${
-                          isHigh ? 'text-amber-400' : isStainless ? 'text-cyan-400' : 'text-white'
-                        }`}
+                        className="font-mono text-[0.82rem] font-black tracking-tighter leading-none text-amber-400 sm:text-2xl"
                       />
                     </div>
                   )
