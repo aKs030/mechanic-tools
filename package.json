@@ -7,6 +7,8 @@
     "dev": "vite",
     "dev:force": "vite --force",
     "build": "vite build",
+    "deploy": "npm run build && npx wrangler pages deploy dist --project-name mechanic-tools",
+    "deploy:preview": "npm run build && npx wrangler pages deploy dist --project-name mechanic-tools --branch preview",
     "preview": "vite preview",
     "lint": "eslint ."
   },
