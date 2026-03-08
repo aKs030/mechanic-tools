@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500;700;800&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-bg: #09111f;
+  --color-panel: #101b30;
+  --color-accent: #5ee7c2;
+  --color-accent2: #5aa9ff;
+  --color-accent3: #f4a73b;
+  --font-sans: 'Space Grotesk', 'Segoe UI Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-bg text-white font-sans antialiased;
+    background-image:
+      radial-gradient(circle at 50% -18%, rgba(94, 231, 194, 0.14) 0%, transparent 38%),
+      radial-gradient(circle at 0% 8%, rgba(90, 169, 255, 0.14) 0%, transparent 32%),
+      radial-gradient(circle at 100% 12%, rgba(244, 167, 59, 0.08) 0%, transparent 24%),
+      linear-gradient(180deg, #0b1425 0%, #09111f 46%, #060b14 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.18;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 96px 96px;
+    mask-image: radial-gradient(circle at center, black 38%, transparent 80%);
+  }
+
+  ::selection {
+    background: rgba(94, 231, 194, 0.28);
+    color: white;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .card {
+    @apply relative rounded-[28px] border border-white/[0.08] bg-linear-to-br from-white/[0.06] via-white/[0.04] to-white/[0.03] p-5 shadow-[0_24px_80px_rgba(3,6,18,0.45)] backdrop-blur-2xl sm:p-6;
+  }
+
+  .app-shell {
+    @apply relative rounded-[32px] border border-white/[0.08] bg-linear-to-r from-white/[0.05] via-white/[0.035] to-white/[0.03] shadow-[0_28px_90px_rgba(3,6,18,0.4)] backdrop-blur-2xl;
+  }
+
+  .section-label {
+    @apply text-[0.65rem] font-black uppercase tracking-[0.32em] text-white/45;
+  }
+
+  .card-glow {
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 32%);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes scannerSweep {
+  0%,
+  100% {
+    transform: translateY(-42%);
+    opacity: 0.35;
+  }
+
+  50% {
+    transform: translateY(42%);
+    opacity: 0.95;
+  }
+}
+
+.glow-icon {
+  filter: drop-shadow(0 0 8px rgba(94, 231, 194, 0.4));
+}
