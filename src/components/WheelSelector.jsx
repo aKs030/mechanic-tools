@@ -13,6 +13,10 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
     }
   }
 
+  // Triple the array for infinite scrolling
+  const infiniteSizes = [...sizes, ...sizes, ...sizes]
+  const middleStartIdx = sizes.length
+
   // Dynamic color coding based on thread size
   const getAccentColor = sizeStr => {
     const num = parseFloat(sizeStr)
@@ -47,7 +51,8 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
     let closestIdx = 0
     let minDistance = Infinity
 
-    itemRefs.current.forEach((item, idx) => {
+    infiniteSizes.forEach((_, idx) => {
+      const item = itemRefs.current[idx]
       if (!item) return
       const itemCenter = item.offsetLeft + item.clientWidth / 2
       const distance = Math.abs(trackCenter - itemCenter)
@@ -72,20 +77,31 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
     })
 
     return closestIdx
-  }, [])
+  }, [infiniteSizes])
 
   const handleScroll = () => {
+    if (!trackRef.current) return
+    const track = trackRef.current
+    const itemWidth = 72
+    const totalWidth = sizes.length * itemWidth
+
+    // Infinite loop jump
+    if (track.scrollLeft < totalWidth * 0.5) {
+      track.scrollLeft += totalWidth
+    } else if (track.scrollLeft > totalWidth * 1.5) {
+      track.scrollLeft -= totalWidth
+    }
+
     const closestIdx = updateVisuals()
+    const actualSize = infiniteSizes[closestIdx]
 
     // Live-Update of the selected Size while scrolling!
-    if (sizes[closestIdx] !== selectedSize && !isProgrammaticScroll.current) {
-      onSelect(sizes[closestIdx])
+    if (actualSize !== selectedSize && !isProgrammaticScroll.current) {
+      onSelect(actualSize)
     }
 
     // Reset programmatic flag once scrolling stops
-    if (scrollingTimeoutRef.current) {
-      clearTimeout(scrollingTimeoutRef.current)
-    }
+    if (scrollingTimeoutRef.current) clearTimeout(scrollingTimeoutRef.current)
     scrollingTimeoutRef.current = setTimeout(() => {
       isProgrammaticScroll.current = false
     }, 150)
@@ -108,7 +124,8 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
   // When selectedSize changes from Quick Buttons, spin the wheel smoothly
   useEffect(() => {
     if (!trackRef.current) return
-    const idx = sizes.indexOf(selectedSize)
+    // Find index in the middle section to keep it centered
+    const idx = sizes.indexOf(selectedSize) + sizes.length
     const item = itemRefs.current[idx]
 
     if (item) {
@@ -130,31 +147,32 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
   // Initial Setup
   useEffect(() => {
     // Initial jump to right position without smooth scrolling
-    if (trackRef.current && itemRefs.current[sizes.indexOf(selectedSize)]) {
+    if (trackRef.current) {
       const track = trackRef.current
-      const item = itemRefs.current[sizes.indexOf(selectedSize)]
-      track.scrollLeft = item.offsetLeft - track.clientWidth / 2 + item.clientWidth / 2
+      const idx = sizes.indexOf(selectedSize) + sizes.length
+      const item = itemRefs.current[idx]
+      if (item) {
+        track.scrollLeft = item.offsetLeft - track.clientWidth / 2 + item.clientWidth / 2
+      }
     }
 
     updateVisuals()
     window.addEventListener('resize', updateVisuals)
     return () => window.removeEventListener('resize', updateVisuals)
-  }, [updateVisuals, selectedSize, sizes]) // Added dependencies to trigger on mount
+  }, [updateVisuals, sizes])
 
   const handlePrev = () => {
     const idx = sizes.indexOf(selectedSize)
-    if (idx > 0) {
-      onSelect(sizes[idx - 1])
-      vibrate([10, 30, 10])
-    }
+    const prevIdx = (idx - 1 + sizes.length) % sizes.length
+    onSelect(sizes[prevIdx])
+    vibrate([10, 30, 10])
   }
 
   const handleNext = () => {
     const idx = sizes.indexOf(selectedSize)
-    if (idx < sizes.length - 1) {
-      onSelect(sizes[idx + 1])
-      vibrate([10, 30, 10])
-    }
+    const nextIdx = (idx + 1) % sizes.length
+    onSelect(sizes[nextIdx])
+    vibrate([10, 30, 10])
   }
 
   return (
@@ -185,14 +203,14 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
         <div
           ref={trackRef}
           onScroll={handleScroll}
-          className="relative z-10 flex h-full snap-x snap-mandatory items-center gap-0 overflow-x-auto px-[50%] scroll-smooth no-scrollbar"
+          className="relative z-10 flex h-full snap-x snap-mandatory items-center gap-0 overflow-x-auto scroll-smooth no-scrollbar"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {sizes.map((s, i) => {
-            const isSelected = s === selectedSize
+          {infiniteSizes.map((s, i) => {
+            const isSelected = s === selectedSize && i >= sizes.length && i < sizes.length * 2
             return (
               <div
-                key={s}
+                key={`${s}-${i}`}
                 ref={el => (itemRefs.current[i] = el)}
                 onClick={() => handleItemClick(s, i)}
                 className="snap-center shrink-0 w-[72px] flex flex-col items-center justify-center cursor-pointer will-change-transform relative"

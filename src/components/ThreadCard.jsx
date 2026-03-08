@@ -1,5 +1,45 @@
 import { Drill, Gauge, SlidersHorizontal } from 'lucide-react'
+import { useEffect, useState, useRef } from 'react'
 import { CLEARANCE_DB, TORQUE_EXT_DB } from '../data/threads'
+
+function useAnimatedNumber(targetValue, duration = 400, decimals = 2) {
+  const [displayValue, setDisplayValue] = useState(targetValue)
+  const startTime = useRef(null)
+  const startValue = useRef(targetValue)
+  const frameId = useRef(null)
+
+  useEffect(() => {
+    if (parseFloat(targetValue) === parseFloat(displayValue)) return
+
+    startValue.current = parseFloat(displayValue) || 0
+    startTime.current = null
+
+    const animate = timestamp => {
+      if (!startTime.current) startTime.current = timestamp
+      const progress = Math.min((timestamp - startTime.current) / duration, 1)
+
+      // Ease out expo for a premium feel
+      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress)
+      const current = startValue.current + (parseFloat(targetValue) - startValue.current) * ease
+
+      setDisplayValue(current.toFixed(decimals))
+
+      if (progress < 1) {
+        frameId.current = requestAnimationFrame(animate)
+      }
+    }
+
+    frameId.current = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(frameId.current)
+  }, [targetValue, decimals])
+
+  return trimFixed(displayValue, decimals)
+}
+
+function AnimatedNumber({ value, decimals = 1, className }) {
+  const animated = useAnimatedNumber(value, 600, decimals)
+  return <span className={className}>{animated}</span>
+}
 
 function trimFixed(value, digits) {
   const n = Number(value)
@@ -7,14 +47,22 @@ function trimFixed(value, digits) {
   return n.toFixed(digits).replace(/\.?0+$/, '')
 }
 
-function formatWithUnit(value, unit, tone = 'text-white') {
+function formatWithUnit(value, unit, tone = 'text-white', isNumeric = true) {
   return (
     <div className="flex items-baseline justify-end gap-1 text-right">
-      <span
-        className={`font-mono text-[1rem] font-black leading-none tracking-[-0.04em] sm:text-[1.12rem] ${tone}`}
-      >
-        {value}
-      </span>
+      {isNumeric ? (
+        <AnimatedNumber
+          value={value}
+          decimals={unit === 'mm' ? 3 : 2}
+          className={`font-mono text-[1rem] font-black leading-none tracking-[-0.04em] sm:text-[1.12rem] ${tone}`}
+        />
+      ) : (
+        <span
+          className={`font-mono text-[1rem] font-black leading-none tracking-[-0.04em] sm:text-[1.12rem] ${tone}`}
+        >
+          {value}
+        </span>
+      )}
       {unit ? (
         <span className="text-[0.58rem] font-bold uppercase tracking-[0.04em] text-white/50 sm:text-[0.66rem]">
           {unit}
@@ -103,7 +151,7 @@ export default function ThreadCard({ size, data }) {
 
           <div className="flex items-center gap-4 sm:gap-8">
             <span className="font-mono text-4xl font-black tracking-tighter text-white sm:text-6xl">
-              M{size}
+              M<AnimatedNumber value={size} decimals={1} />
             </span>
             <div className="h-10 w-px bg-white/10 sm:h-14" />
 
@@ -120,18 +168,24 @@ export default function ThreadCard({ size, data }) {
             <div className="flex items-center text-center">
               {data.din ? (
                 <div className="flex items-center gap-3 sm:gap-5">
-                  <span className="font-mono text-4xl font-black tracking-tighter text-accent sm:text-6xl">
-                    {trimFixed(data.iso, 1)}
-                  </span>
+                  <AnimatedNumber
+                    value={data.iso}
+                    decimals={1}
+                    className="font-mono text-4xl font-black tracking-tighter text-accent sm:text-6xl"
+                  />
                   <div className="h-10 w-px bg-white/10 sm:h-14" />
-                  <span className="font-mono text-4xl font-black tracking-tighter text-white/50 sm:text-6xl">
-                    {trimFixed(data.din, 1)}
-                  </span>
+                  <AnimatedNumber
+                    value={data.din}
+                    decimals={1}
+                    className="font-mono text-4xl font-black tracking-tighter text-white/50 sm:text-6xl"
+                  />
                 </div>
               ) : (
-                <span className="font-mono text-4xl font-black tracking-tighter text-accent sm:text-6xl">
-                  {trimFixed(data.iso, 1)}
-                </span>
+                <AnimatedNumber
+                  value={data.iso}
+                  decimals={1}
+                  className="font-mono text-4xl font-black tracking-tighter text-accent sm:text-6xl"
+                />
               )}
             </div>
           </div>
