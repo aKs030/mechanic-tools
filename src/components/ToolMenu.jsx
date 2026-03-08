@@ -1,12 +1,18 @@
-import { Wrench, Camera } from 'lucide-react'
+import { Wrench, Camera, TableProperties } from 'lucide-react'
 
-export default function ToolMenu({ active, onSelect }) {
+export default function ToolMenu({ active, threadView, onSelect }) {
   const items = [
     {
       id: 'threads',
       label: 'Gewinde',
       detail: 'Rechner',
       icon: Wrench,
+    },
+    {
+      id: 'thread-table',
+      label: 'Tabelle',
+      detail: 'Gesamt',
+      icon: TableProperties,
     },
     {
       id: 'camera',
@@ -21,7 +27,12 @@ export default function ToolMenu({ active, onSelect }) {
       <div className="flex gap-1.5 sm:gap-2">
         {items.map(item => {
           const Icon = item.icon
-          const isActive = active === item.id
+          const isActive =
+            item.id === 'threads'
+              ? active === 'threads' && threadView === 'rechner'
+              : item.id === 'thread-table'
+                ? active === 'threads' && threadView === 'tabelle'
+                : active === item.id
 
           return (
             <button

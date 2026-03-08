@@ -5,6 +5,26 @@ import ToolMenu from './components/ToolMenu'
 
 function App() {
   const [activeTool, setActiveTool] = useState('threads')
+  const [threadView, setThreadView] = useState('rechner')
+
+  const handleSelect = next => {
+    if (next === 'threads') {
+      setActiveTool('threads')
+      setThreadView('rechner')
+      return
+    }
+
+    if (next === 'thread-table') {
+      setActiveTool('threads')
+      setThreadView('tabelle')
+      return
+    }
+
+    setActiveTool(next)
+  }
+
+  const statusLabel =
+    activeTool === 'camera' ? 'Scanner' : threadView === 'tabelle' ? 'Tabelle' : 'Gewinde'
 
   return (
     <div className="min-h-screen overflow-x-clip">
@@ -30,18 +50,18 @@ function App() {
 
               <div className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1.5 text-[0.55rem] font-black uppercase tracking-[0.24em] text-white/55 sm:px-3 sm:py-2 sm:text-[0.62rem] sm:tracking-[0.28em]">
                 <span className="mr-2 inline-block h-2 w-2 rounded-full bg-accent shadow-[0_0_10px_rgba(94,231,194,0.85)]" />
-                {activeTool === 'threads' ? 'Gewinde' : 'Scanner'}
+                {statusLabel}
               </div>
             </div>
           </div>
         </header>
 
         <main className="mx-auto w-full max-w-4xl">
-          {activeTool === 'threads' && <ThreadCalculator />}
+          {activeTool === 'threads' && <ThreadCalculator view={threadView} />}
           {activeTool === 'camera' && <CameraScanner />}
         </main>
 
-        <ToolMenu active={activeTool} onSelect={setActiveTool} />
+        <ToolMenu active={activeTool} threadView={threadView} onSelect={handleSelect} />
       </div>
     </div>
   )
