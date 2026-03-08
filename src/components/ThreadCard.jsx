@@ -80,6 +80,7 @@ export default function ThreadCard({ size, data }) {
       title: 'Drehmoment',
       tone: 'amber',
       meta: 'Nm',
+      layout: 'compact-grid',
       items: torque
         ? [
             { label: '8.8', value: torque['8.8'] },
@@ -91,12 +92,13 @@ export default function ThreadCard({ size, data }) {
   ]
 
   return (
-    <div className="space-y-3 pb-10">
+    <div className="grid gap-2 pb-1 md:gap-2.5 lg:grid-cols-2">
       {sections.map(section => (
         <CategoryCard
           key={section.title}
           title={section.title}
           meta={section.meta}
+          layout={section.layout}
           tone={section.tone}
           items={section.items}
         />
@@ -105,45 +107,84 @@ export default function ThreadCard({ size, data }) {
   )
 }
 
-function CategoryCard({ title, meta, items, tone = 'default' }) {
+function CategoryCard({ title, meta, items, tone = 'default', layout = 'list' }) {
   const style = SECTION_STYLES[tone]
   const Icon = style.icon
 
   return (
-    <section className={`card overflow-hidden px-4 py-4 sm:px-5 ${style.border}`}>
+    <section
+      className={`card w-full min-w-0 overflow-hidden px-2 py-2 sm:px-3 sm:py-2.5 ${style.border}`}
+    >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/22 to-transparent" />
-      <div className={`pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-full blur-3xl ${style.halo}`} />
+      <div
+        className={`pointer-events-none absolute right-0 top-0 h-16 w-16 rounded-full blur-3xl sm:h-20 sm:w-20 ${style.halo}`}
+      />
 
       <div className="relative">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 items-center justify-center rounded-2xl border ${style.pill}`}>
-              <Icon size={18} />
+        <div className="mb-1 flex items-start justify-between gap-2 sm:mb-1.5">
+          <div className="flex min-w-0 items-center gap-2">
+            <div
+              className={`flex h-7 w-7 items-center justify-center rounded-xl border sm:h-8 sm:w-8 ${style.pill}`}
+            >
+              <Icon size={15} />
             </div>
-            <div>
-              <div className="section-label mb-1">{title}</div>
-              <div className="text-sm font-semibold tracking-tight text-white/80">
+            <div className="min-w-0">
+              <div className="section-label mb-0.5">{title}</div>
+              <div className="text-[0.72rem] font-semibold tracking-tight text-white/80 sm:text-[0.8rem]">
                 {items.length} Werte
               </div>
             </div>
           </div>
 
-          <div className={`rounded-full border px-3 py-2 text-[0.62rem] font-black uppercase tracking-[0.28em] ${style.pill}`}>
+          <div
+            className={`shrink-0 rounded-full border px-1.5 py-1 text-[0.5rem] font-black uppercase tracking-[0.18em] sm:px-2 sm:py-1 sm:text-[0.54rem] sm:tracking-[0.2em] ${style.pill}`}
+          >
             {meta}
           </div>
         </div>
 
-        <div className="max-w-[34rem] overflow-hidden rounded-[24px] border border-white/[0.06] bg-black/18 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-          {items.map(item => (
-            <ListRow
-              key={item.label}
-              label={item.label}
-              value={item.value}
-              labelClass={style.label}
-              valueClass={style.value}
-            />
-          ))}
-        </div>
+        {layout === 'compact-grid' ? (
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2">
+            {items.map((item, index) => (
+              <CompactPairCard
+                key={item.label}
+                label={item.label}
+                value={item.value}
+                labelClass={style.label}
+                valueClass={style.value}
+                className={
+                  items.length % 2 === 1 && index === items.length - 1
+                    ? 'col-span-2 sm:col-span-1'
+                    : ''
+                }
+              />
+            ))}
+          </div>
+        ) : layout === 'metric-grid' ? (
+          <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+            {items.map(item => (
+              <MetricValueCard
+                key={item.label}
+                label={item.label}
+                value={item.value}
+                labelClass={style.label}
+                valueClass={style.value}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="w-full overflow-hidden rounded-[15px] border border-white/[0.06] bg-black/18 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:rounded-[17px]">
+            {items.map(item => (
+              <ListRow
+                key={item.label}
+                label={item.label}
+                value={item.value}
+                labelClass={style.label}
+                valueClass={style.value}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )
@@ -151,11 +192,53 @@ function CategoryCard({ title, meta, items, tone = 'default' }) {
 
 function ListRow({ label, value, labelClass, valueClass }) {
   return (
-    <div className="grid grid-cols-[minmax(0,9rem)_auto] items-center justify-start gap-x-4 border-b border-white/[0.06] px-4 py-3 last:border-b-0 sm:grid-cols-[minmax(0,11rem)_auto] sm:gap-x-5">
-      <div className={`text-[0.65rem] font-black uppercase tracking-[0.28em] ${labelClass}`}>
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 border-b border-white/[0.06] px-2.5 py-2 last:border-b-0 sm:gap-x-2.5 sm:px-3 sm:py-2.5">
+      <div
+        className={`pr-1.5 text-[0.5rem] font-black uppercase tracking-[0.18em] sm:text-[0.58rem] sm:tracking-[0.2em] ${labelClass}`}
+      >
         {label}
       </div>
-      <div className={`font-mono text-lg font-black tracking-[-0.05em] ${valueClass}`}>
+      <div
+        className={`text-right font-mono text-[0.92rem] font-black tracking-[-0.04em] sm:text-[1.06rem] ${valueClass}`}
+      >
+        {value}
+      </div>
+    </div>
+  )
+}
+
+function CompactPairCard({ label, value, labelClass, valueClass, className = '' }) {
+  return (
+    <div
+      className={`rounded-[13px] border border-white/[0.06] bg-black/18 px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:rounded-[15px] sm:px-2.5 sm:py-2 ${className}`}
+    >
+      <div className="flex items-baseline justify-between gap-1.5">
+        <div
+          className={`text-[0.54rem] font-black uppercase tracking-[0.14em] sm:text-[0.6rem] sm:tracking-[0.16em] ${labelClass}`}
+        >
+          {label}
+        </div>
+        <div
+          className={`text-right font-mono text-[0.9rem] font-black tracking-[-0.04em] sm:text-[1.02rem] ${valueClass}`}
+        >
+          {value}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function MetricValueCard({ label, value, labelClass, valueClass }) {
+  return (
+    <div className="rounded-[13px] border border-white/[0.06] bg-black/18 px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:rounded-[15px] sm:px-2.5 sm:py-2">
+      <div
+        className={`mb-1 text-[0.5rem] font-black uppercase tracking-[0.18em] sm:text-[0.56rem] sm:tracking-[0.2em] ${labelClass}`}
+      >
+        {label}
+      </div>
+      <div
+        className={`font-mono text-[0.92rem] font-black tracking-[-0.04em] sm:text-[1.04rem] ${valueClass}`}
+      >
         {value}
       </div>
     </div>
