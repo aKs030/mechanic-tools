@@ -1,246 +1,175 @@
-import { Bolt, Drill, Gauge, Layers } from 'lucide-react'
+import { Drill, Gauge, SlidersHorizontal } from 'lucide-react'
 import { CLEARANCE_DB, TORQUE_EXT_DB } from '../data/threads'
 
-const SECTION_STYLES = {
-  accent: {
-    icon: Bolt,
-    halo: 'bg-accent/10',
-    border: 'border-accent/14',
-    pill: 'border-accent/16 bg-accent/10 text-accent/82',
-    value: 'text-accent',
-    label: 'text-accent/78',
-  },
-  blue: {
-    icon: Drill,
-    halo: 'bg-accent2/10',
-    border: 'border-accent2/14',
-    pill: 'border-accent2/16 bg-accent2/10 text-accent2/82',
-    value: 'text-accent2',
-    label: 'text-accent2/78',
-  },
-  amber: {
-    icon: Gauge,
-    halo: 'bg-amber-300/10',
-    border: 'border-amber-300/14',
-    pill: 'border-amber-300/16 bg-amber-300/10 text-amber-300/82',
-    value: 'text-amber-300',
-    label: 'text-amber-300/78',
-  },
-  default: {
-    icon: Layers,
-    halo: 'bg-white/[0.06]',
-    border: 'border-white/8',
-    pill: 'border-white/10 bg-white/[0.05] text-white/56',
-    value: 'text-white',
-    label: 'text-white/42',
-  },
+function trimFixed(value, digits) {
+  const n = Number(value)
+  if (!Number.isFinite(n)) return '-'
+  return n.toFixed(digits).replace(/\.?0+$/, '')
+}
+
+function formatWithUnit(value, unit, tone = 'text-white') {
+  return (
+    <div className="flex items-baseline justify-end gap-2 text-right">
+      <span
+        className={`font-mono text-[1rem] font-black leading-none tracking-[-0.04em] sm:text-[1.12rem] ${tone}`}
+      >
+        {value}
+      </span>
+      {unit ? (
+        <span className="text-[0.62rem] font-bold uppercase tracking-[0.08em] text-white/62 sm:text-[0.7rem]">
+          {unit}
+        </span>
+      ) : null}
+    </div>
+  )
 }
 
 export default function ThreadCard({ size, data }) {
   const clearance = CLEARANCE_DB[size] || null
   const torque = TORQUE_EXT_DB[size] || null
+  const hasTorque = Number(size) >= 2 && Boolean(torque)
 
-  const sections = [
+  const pitch = Number(data.pitch)
+
+  const threadRows = [
     {
-      title: 'Basiswerte',
-      tone: 'accent',
-      meta: `M${size}`,
-      items: [
-        { label: 'Gewinde', value: `M${size}` },
-        { label: 'SW', value: data.iso },
-        { label: 'Steigung', value: `${data.pitch} mm` },
-        { label: 'Kernloch', value: `Ø ${data.drill} mm` },
-      ],
+      label: 'Gewinde',
+      hint: 'Regelgewinde DIN 13-1',
+      value: <span className="font-mono text-[1.8rem] font-black tracking-[-0.05em] text-white">M{size}</span>,
     },
     {
-      title: 'Details',
-      tone: 'default',
-      meta: 'ISO',
-      items: [
-        { label: 'Flankentiefe', value: `${(0.6134 * parseFloat(data.pitch)).toFixed(3)} mm` },
-        { label: 'Einschraubtiefe', value: `${(1.2 * parseFloat(size)).toFixed(1)} mm` },
-        { label: 'Min. Material', value: `${(2.5 * parseFloat(data.pitch)).toFixed(2)} mm` },
-        { label: 'Profil', value: '60 Grad' },
-        { label: 'Norm', value: 'ISO 261 / 965' },
-      ],
+      label: 'Steigung P',
+      value: formatWithUnit(trimFixed(data.pitch, 2), 'mm'),
     },
     {
-      title: 'Durchgang',
-      tone: 'blue',
-      meta: clearance ? 'ISO 273' : 'n/a',
-      items: clearance
-        ? [
-            { label: 'Fein', value: clearance.fine },
-            { label: 'Mittel', value: clearance.medium },
-            { label: 'Grob', value: clearance.coarse },
-          ]
-        : [{ label: 'Durchgang', value: '-' }],
+      label: 'Flankentiefe H3',
+      hint: 'Theoretisch',
+      value: formatWithUnit(trimFixed(0.6134 * pitch, 3), 'mm'),
     },
     {
-      title: 'Drehmoment',
-      tone: 'amber',
-      meta: 'Nm',
-      layout: 'compact-grid',
-      items: torque
-        ? [
-            { label: '8.8', value: torque['8.8'] },
-            { label: '10.9', value: torque['10.9'] },
-            { label: '12.9', value: torque['12.9'] },
-          ]
-        : [{ label: 'Drehmoment', value: '-' }],
+      label: 'Einschraubtiefe',
+      hint: 'Empfehlung (Stahl)',
+      value: formatWithUnit(trimFixed(1.2 * Number(size), 1), 'mm'),
+    },
+    {
+      label: 'Mindest-Material',
+      hint: 'Grob-Richtwert',
+      value: formatWithUnit(trimFixed(2.5 * pitch, 2), 'mm'),
+    },
+    {
+      label: 'Schlüsselweite',
+      value: formatWithUnit(trimFixed(data.iso, 1), '', 'text-accent'),
+    },
+  ]
+
+  const drillRows = [
+    {
+      label: 'Kernloch Ø',
+      hint: 'DIN 336',
+      value: formatWithUnit(trimFixed(data.drill, 2), 'mm', 'text-accent'),
+    },
+    {
+      label: 'Durchgang (Fein)',
+      hint: 'ISO 273',
+      value: formatWithUnit(clearance ? trimFixed(clearance.fine, 1) : '-', 'mm'),
+    },
+    {
+      label: 'Durchgang (Mittel)',
+      value: formatWithUnit(clearance ? trimFixed(clearance.medium, 1) : '-', 'mm'),
+    },
+    {
+      label: 'Durchgang (Grob)',
+      value: formatWithUnit(clearance ? trimFixed(clearance.coarse, 1) : '-', 'mm'),
     },
   ]
 
   return (
-    <div className="grid items-start gap-2 pb-1 md:gap-2.5 lg:grid-cols-2">
-      {sections.map(section => (
-        <CategoryCard
-          key={section.title}
-          title={section.title}
-          meta={section.meta}
-          layout={section.layout}
-          tone={section.tone}
-          items={section.items}
+    <article className="card mx-auto w-full max-w-[25rem] overflow-hidden rounded-[30px] border border-white/12 !p-0 sm:max-w-[35rem]">
+      <div className="px-4 pb-4 pt-4 sm:px-7 sm:pb-6 sm:pt-6">
+        <SectionHeading
+          icon={
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/16 bg-accent/10 text-accent">
+              <SlidersHorizontal size={22} />
+            </div>
+          }
+          title="Gewinde Details"
         />
-      ))}
-    </div>
-  )
-}
 
-function CategoryCard({ title, meta, items, tone = 'default', layout = 'list' }) {
-  const style = SECTION_STYLES[tone]
-  const Icon = style.icon
-
-  return (
-    <section
-      className={`card self-start w-full min-w-0 overflow-hidden px-2 py-2 sm:px-3 sm:py-2.5 ${style.border}`}
-    >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/22 to-transparent" />
-      <div
-        className={`pointer-events-none absolute right-0 top-0 h-16 w-16 rounded-full blur-3xl sm:h-20 sm:w-20 ${style.halo}`}
-      />
-
-      <div className="relative">
-        <div className="mb-1 flex items-start justify-between gap-2 sm:mb-1.5">
-          <div className="flex min-w-0 items-center gap-2">
-            <div
-              className={`flex h-7 w-7 items-center justify-center rounded-xl border sm:h-8 sm:w-8 ${style.pill}`}
-            >
-              <Icon size={15} />
-            </div>
-            <div className="min-w-0">
-              <div className="section-label mb-0.5">{title}</div>
-              <div className="text-[0.72rem] font-semibold tracking-tight text-white/80 sm:text-[0.8rem]">
-                {items.length} Werte
-              </div>
-            </div>
-          </div>
-
-          <div
-            className={`shrink-0 rounded-full border px-1.5 py-1 text-[0.5rem] font-black uppercase tracking-[0.18em] sm:px-2 sm:py-1 sm:text-[0.54rem] sm:tracking-[0.2em] ${style.pill}`}
-          >
-            {meta}
-          </div>
+        <div className="mt-2.5 sm:mt-3">
+          {threadRows.map(row => (
+            <SpecRow key={row.label} label={row.label} hint={row.hint} value={row.value} />
+          ))}
         </div>
 
-        {layout === 'compact-grid' ? (
-          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2">
-            {items.map((item, index) => (
-              <CompactPairCard
-                key={item.label}
-                label={item.label}
-                value={item.value}
-                labelClass={style.label}
-                valueClass={style.value}
-                className={
-                  items.length % 2 === 1 && index === items.length - 1
-                    ? 'col-span-2 sm:col-span-1'
-                    : ''
-                }
-              />
-            ))}
-          </div>
-        ) : layout === 'metric-grid' ? (
-          <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-            {items.map(item => (
-              <MetricValueCard
-                key={item.label}
-                label={item.label}
-                value={item.value}
-                labelClass={style.label}
-                valueClass={style.value}
+        <SectionDivider />
+        <SectionHeading
+          icon={
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-accent2/16 bg-accent2/10 text-accent2">
+              <Drill size={22} />
+            </div>
+          }
+          title="Bohren & Senken"
+        />
+
+        <div className="mt-2.5 sm:mt-3">
+          {drillRows.map(row => (
+            <SpecRow key={row.label} label={row.label} hint={row.hint} value={row.value} />
+          ))}
+        </div>
+
+        <SectionDivider />
+        <SectionHeading
+          icon={
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-300/16 bg-amber-300/10 text-amber-300">
+              <Gauge size={20} />
+            </div>
+          }
+          title="Drehmomente (Nm)"
+        />
+
+        {hasTorque ? (
+          <div className="mt-3 sm:mt-4">
+            {['8.8', '10.9', '12.9'].map(grade => (
+              <SpecRow
+                key={grade}
+                label={`FK ${grade}`}
+                value={formatWithUnit(trimFixed(torque[grade], Number(torque[grade]) >= 10 ? 0 : 2), 'Nm')}
               />
             ))}
           </div>
         ) : (
-          <div className="card-surface w-full overflow-hidden rounded-[15px] border sm:rounded-[17px]">
-            {items.map(item => (
-              <ListRow
-                key={item.label}
-                label={item.label}
-                value={item.value}
-                labelClass={style.label}
-                valueClass={style.value}
-              />
-            ))}
-          </div>
+          <p className="mt-3 text-[0.95rem] font-medium italic text-white/45 sm:text-[1rem]">
+            Keine Drehmomentdaten für diese Größe verfügbar.
+          </p>
         )}
       </div>
-    </section>
+    </article>
   )
 }
 
-function ListRow({ label, value, labelClass, valueClass }) {
+function SectionHeading({ icon, title }) {
   return (
-    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-b border-white/[0.06] px-2.5 py-2 last:border-b-0 sm:gap-x-2.5 sm:px-3 sm:py-2.5">
-      <div
-        className={`shrink-0 text-[0.5rem] font-black uppercase tracking-[0.14em] sm:text-[0.58rem] sm:tracking-[0.18em] ${labelClass}`}
-      >
-        {label}
-      </div>
-      <div
-        className={`min-w-0 break-words font-mono text-[0.92rem] font-black leading-tight tracking-[-0.04em] sm:text-[1.06rem] ${valueClass}`}
-      >
-        {value}
-      </div>
+    <div className="flex items-center gap-3">
+      {icon}
+      <h3 className="font-mono text-[1.28rem] font-black tracking-[-0.02em] text-white sm:text-[1.8rem]">{title}</h3>
     </div>
   )
 }
 
-function CompactPairCard({ label, value, labelClass, valueClass, className = '' }) {
+function SectionDivider() {
+  return <div className="my-3 border-t border-white/[0.07] sm:my-4" />
+}
+
+function SpecRow({ label, hint, value }) {
   return (
-    <div
-      className={`card-surface rounded-[13px] border px-2 py-1.5 sm:rounded-[15px] sm:px-2.5 sm:py-2 ${className}`}
-    >
-      <div className="flex items-baseline justify-between gap-1.5">
-        <div
-          className={`text-[0.54rem] font-black uppercase tracking-[0.14em] sm:text-[0.6rem] sm:tracking-[0.16em] ${labelClass}`}
-        >
+    <div className="grid grid-cols-[minmax(8.5rem,11.5rem)_max-content] items-start gap-2 py-1 sm:grid-cols-[minmax(9.5rem,13rem)_max-content] sm:gap-2.5 sm:py-1.5">
+      <div className="min-w-0">
+        <div className="text-[0.66rem] font-black uppercase tracking-[0.18em] text-white/42 sm:text-[0.76rem]">
           {label}
         </div>
-        <div
-          className={`text-right font-mono text-[0.9rem] font-black tracking-[-0.04em] sm:text-[1.02rem] ${valueClass}`}
-        >
-          {value}
-        </div>
+        {hint ? <div className="mt-0.5 text-[0.56rem] font-medium text-white/28 sm:text-[0.62rem]">{hint}</div> : null}
       </div>
-    </div>
-  )
-}
-
-function MetricValueCard({ label, value, labelClass, valueClass }) {
-  return (
-    <div className="card-surface rounded-[13px] border px-2 py-1.5 sm:rounded-[15px] sm:px-2.5 sm:py-2">
-      <div
-        className={`mb-1 text-[0.5rem] font-black uppercase tracking-[0.18em] sm:text-[0.56rem] sm:tracking-[0.2em] ${labelClass}`}
-      >
-        {label}
-      </div>
-      <div
-        className={`font-mono text-[0.92rem] font-black tracking-[-0.04em] sm:text-[1.04rem] ${valueClass}`}
-      >
-        {value}
-      </div>
+      <div className="shrink-0">{value}</div>
     </div>
   )
 }
