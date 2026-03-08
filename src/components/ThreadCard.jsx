@@ -222,33 +222,63 @@ export default function ThreadCard({ size, data }) {
 
         <SectionDivider />
 
-        <section>
-          <SectionHeading
-            icon={
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-300/16 bg-amber-300/10 text-amber-300">
-                <Gauge size={20} />
-              </div>
-            }
-            title="Drehmomente (Nm)"
-          />
+        <section className="relative overflow-hidden rounded-[20px] border border-white/8 bg-white/4 p-2.5 sm:p-4">
+          <div className="absolute -right-12 -top-12 h-24 w-24 rounded-full bg-amber-400/5 blur-3xl opacity-20" />
+
+          <div className="mb-3 flex items-center justify-between px-1">
+            <div className="flex items-center gap-1.5">
+              <Gauge size={12} className="text-amber-300/50" />
+              <h3 className="font-mono text-[0.6rem] font-black uppercase tracking-[0.12em] text-white/30 sm:text-[0.7rem]">
+                Drehmomente (NM)
+              </h3>
+            </div>
+            <span className="text-[0.45rem] font-bold text-white/10 uppercase tracking-widest">
+              Standard Reibwert µ=0,14
+            </span>
+          </div>
 
           {hasTorque ? (
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              {['8.8', '10.9', '12.9'].map(grade => (
-                <TorqueCell
-                  key={grade}
-                  label={`FK ${grade}`}
-                  value={formatWithUnit(
-                    trimFixed(torque[grade], Number(torque[grade]) >= 10 ? 0 : 2),
-                    'Nm'
-                  )}
-                />
-              ))}
+            <div className="flex w-full items-end justify-center gap-2 px-0.5 sm:gap-5">
+              {Object.keys(torque)
+                .sort((a, b) => {
+                  const priority = {
+                    4.6: 1,
+                    5.6: 2,
+                    6.8: 3,
+                    8.8: 4,
+                    10.9: 5,
+                    12.9: 6,
+                    'A2-70': 7,
+                    'A4-80': 8,
+                  }
+                  return (priority[a] || 9) - (priority[b] || 9)
+                })
+                .map(grade => {
+                  const isHigh = grade === '10.9' || grade === '12.9'
+                  const isStainless = grade.startsWith('A')
+                  const val = Number(torque[grade])
+
+                  return (
+                    <div
+                      key={grade}
+                      className="flex flex-col items-center min-w-[2.2rem] sm:min-w-[3.5rem]"
+                    >
+                      <span className="text-[0.4rem] font-black text-white/20 sm:text-[0.55rem]">
+                        {grade}
+                      </span>
+                      <AnimatedNumber
+                        value={torque[grade]}
+                        decimals={val >= 100 ? 0 : val >= 10 ? 1 : 2}
+                        className={`font-mono text-[0.82rem] font-black tracking-tighter leading-none sm:text-2xl ${
+                          isHigh ? 'text-amber-400' : isStainless ? 'text-cyan-400' : 'text-white'
+                        }`}
+                      />
+                    </div>
+                  )
+                })}
             </div>
           ) : (
-            <p className="mt-3 text-[0.95rem] font-medium italic text-white/45 sm:text-[1rem]">
-              Keine Drehmomentdaten für diese Größe verfügbar.
-            </p>
+            <p className="py-1 text-center text-[0.7rem] font-medium italic text-white/15">n/a</p>
           )}
         </section>
       </div>
@@ -268,12 +298,12 @@ function SectionHeading({ icon, title }) {
 }
 
 function SectionDivider() {
-  return <div className="my-5 border-t border-white/[0.06] sm:my-8" />
+  return <div className="my-5 border-t border-white/6 sm:my-8" />
 }
 
 function SpecRow({ label, hint, note, value }) {
   return (
-    <div className="grid grid-cols-[6.5rem_auto] items-center gap-2 border-b border-white/[0.03] py-2 last:border-0 sm:grid-cols-[8.5rem_auto] sm:py-2.5">
+    <div className="grid grid-cols-[6.5rem_auto] items-center gap-2 border-b border-white/3 py-2 last:border-0 sm:grid-cols-[8.5rem_auto] sm:py-2.5">
       <div className="min-w-0">
         <div className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-white/40 sm:text-[0.72rem]">
           {label}
