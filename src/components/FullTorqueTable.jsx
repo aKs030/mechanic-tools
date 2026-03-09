@@ -5,6 +5,7 @@ export default function FullTorqueTable() {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortConfig, setSortConfig] = useState({ key: 'size', direction: 'asc' })
   const [showClearance, setShowClearance] = useState(false)
+  const [boltType, setBoltType] = useState('full') // 'full' or 'expansion'
 
   const sizes = useMemo(() => {
     const filtered = Object.keys(DB).filter(
@@ -47,7 +48,7 @@ export default function FullTorqueTable() {
           </div>
         </div>
 
-        <div className="mt-4 flex flex-col gap-2.5 md:flex-row">
+        <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center">
           <input
             type="text"
             placeholder="Suche M6, M8, M10 ..."
@@ -55,16 +56,42 @@ export default function FullTorqueTable() {
             onChange={e => setSearchTerm(e.target.value)}
             className="min-w-[220px] flex-1 rounded-[20px] border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder:text-white/28 focus:border-accent/45 focus:outline-none"
           />
-          <button
-            onClick={() => setShowClearance(!showClearance)}
-            className={`rounded-[20px] border px-4 py-2.5 text-xs font-black uppercase tracking-[0.26em] transition-all ${
-              showClearance
-                ? 'border-accent2/30 bg-accent2/10 text-accent2'
-                : 'border-white/10 bg-white/[0.04] text-white/45 hover:text-white'
-            }`}
-          >
-            {showClearance ? 'Durchgang aktiv' : 'Durchgang anzeigen'}
-          </button>
+
+          <div className="flex gap-2">
+            <div className="flex rounded-[20px] bg-black/30 p-1 border border-white/8">
+              <button
+                onClick={() => setBoltType('full')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[16px] text-[0.62rem] font-black uppercase tracking-wider transition-all ${
+                  boltType === 'full'
+                    ? 'bg-accent/20 text-accent'
+                    : 'text-white/30 hover:text-white/50'
+                }`}
+              >
+                Vollschaft
+              </button>
+              <button
+                onClick={() => setBoltType('expansion')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[16px] text-[0.62rem] font-black uppercase tracking-wider transition-all ${
+                  boltType === 'expansion'
+                    ? 'bg-amber-400/20 text-amber-400'
+                    : 'text-white/30 hover:text-white/50'
+                }`}
+              >
+                Dehnschaft
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowClearance(!showClearance)}
+              className={`rounded-[20px] border px-4 py-2.5 text-[0.62rem] font-black uppercase tracking-wider transition-all ${
+                showClearance
+                  ? 'border-accent2/30 bg-accent2/10 text-accent2'
+                  : 'border-white/10 bg-white/[0.04] text-white/45 hover:text-white'
+              }`}
+            >
+              {showClearance ? 'Durchgang aktiv' : 'Durchgang (+)'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -105,7 +132,8 @@ export default function FullTorqueTable() {
             ) : (
               sizes.map((s, index) => {
                 const d = DB[s]
-                const t = TORQUE_EXT_DB[s] || {}
+                const torqueData = TORQUE_EXT_DB[s] || {}
+                const t = torqueData[boltType] || torqueData // Handle both nested and flat structures
                 const c = CLEARANCE_DB[s]
 
                 return (

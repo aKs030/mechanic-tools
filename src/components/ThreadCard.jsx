@@ -112,9 +112,17 @@ function formatWithUnit(value, unit, tone = 'text-white', isNumeric = true) {
 }
 
 export default function ThreadCard({ size, data }) {
+  const [boltType, setBoltType] = useState('full') // 'full' (●) or 'expansion' (○)
   const numericSize = Number(size)
   const clearance = CLEARANCE_DB[size] || null
-  const torque = TORQUE_EXT_DB[size] || null
+  const torqueData = TORQUE_EXT_DB[size] || null
+
+  // If the new structure is present (has full/expansion keys), use them. Otherwise fallback to top level for legacy.
+  const torque =
+    torqueData && (torqueData.full || torqueData.expansion)
+      ? torqueData[boltType] || null
+      : torqueData
+
   const hasTorque = numericSize >= 2 && Boolean(torque)
   const torqueEntries = hasTorque
     ? Object.keys(torque)
@@ -262,27 +270,54 @@ export default function ThreadCard({ size, data }) {
 
         <SectionDivider />
 
-        <section className="relative w-full overflow-hidden rounded-[20px] border border-white/8 bg-white/4 px-2.5 py-3 sm:px-4 sm:py-4">
+        <section className="relative w-full overflow-hidden rounded-[20px] border border-white/8 bg-white/4 px-1.5 py-3 sm:px-4 sm:py-4">
           <div className="absolute -right-12 -top-12 h-24 w-24 rounded-full bg-amber-400/5 blur-3xl opacity-20" />
 
-          <div className="mb-2.5 flex items-center justify-between gap-2 sm:mb-3">
+          <div className="mb-2.5 flex items-center justify-between gap-2 sm:mb-4">
             <div className="flex items-center gap-1.5">
               <Gauge size={12} className="text-amber-300/50" />
               <h3 className="font-mono text-[0.6rem] font-black uppercase tracking-[0.12em] text-white/30 sm:text-[0.7rem]">
                 Drehmomente (Nm)
               </h3>
-              <span className="text-[0.42rem] font-bold uppercase tracking-[0.08em] text-white/12 sm:hidden">
-                µ=0,14
-              </span>
             </div>
-            <span className="hidden shrink-0 whitespace-nowrap text-right text-[0.45rem] font-bold text-white/10 uppercase tracking-widest sm:block">
-              Standard-Reibwert µ=0,14
+
+            <div className="flex rounded-full bg-black/40 p-0.5 border border-white/8">
+              <button
+                onClick={() => setBoltType('full')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.55rem] font-black uppercase tracking-wider transition-all ${
+                  boltType === 'full'
+                    ? 'bg-accent/20 text-accent shadow-[0_0_12px_rgba(94,231,194,0.15)]'
+                    : 'text-white/25 hover:text-white/40'
+                }`}
+              >
+                <div
+                  className={`h-1.5 w-1.5 rounded-full ${boltType === 'full' ? 'bg-accent' : 'bg-white/20'}`}
+                />
+                Vollschaft
+              </button>
+              <button
+                onClick={() => setBoltType('expansion')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.55rem] font-black uppercase tracking-wider transition-all ${
+                  boltType === 'expansion'
+                    ? 'bg-amber-400/20 text-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.15)]'
+                    : 'text-white/25 hover:text-white/40'
+                }`}
+              >
+                <div
+                  className={`h-1.5 w-1.5 rounded border border-current ${boltType === 'expansion' ? 'bg-amber-400' : ''}`}
+                />
+                Dehnschaft
+              </button>
+            </div>
+
+            <span className="hidden shrink-0 whitespace-nowrap text-right text-[0.45rem] font-bold text-white/10 uppercase tracking-widest lg:block">
+              µ=0,14
             </span>
           </div>
 
           {hasTorque ? (
-            <div className="pb-0.5 sm:overflow-x-auto sm:no-scrollbar">
-              <div className="grid w-full grid-cols-8 items-end gap-x-0 px-0 sm:mx-auto sm:flex sm:w-max sm:min-w-max sm:gap-3.5">
+            <div className="py-0.5">
+              <div className="flex w-full items-center justify-between gap-0.5 px-0">
                 {torqueEntries.map(({ grade, value }) => (
                   <TorqueTile key={grade} grade={grade} value={value} />
                 ))}
@@ -312,17 +347,17 @@ function TorqueTile({ grade, value }) {
   }
 
   return (
-    <div className="flex min-w-0 flex-col items-center text-center sm:w-[5.2rem] sm:shrink-0">
-      <span className="w-full whitespace-nowrap text-[0.62rem] font-black tracking-[-0.05em] text-white/50 sm:text-[0.82rem]">
+    <div className="flex min-w-0 flex-1 flex-col items-center text-center">
+      <span className="w-full truncate whitespace-nowrap text-[clamp(0.45rem,1.8vw,0.78rem)] font-black tracking-tighter text-white/50">
         {grade}
       </span>
-      <span className="mb-0.5 text-[0.45rem] font-medium uppercase tracking-widest text-white/20 sm:text-[0.5rem]">
+      <span className="mb-0.5 block min-h-2 w-full truncate whitespace-nowrap text-[clamp(0.35rem,1.4vw,0.5rem)] font-bold uppercase tracking-widest text-white/15">
         {MATERIAL_LABELS[grade] || ''}
       </span>
       <AnimatedNumber
         value={value}
         decimals={getTorqueDecimals(value)}
-        className={`font-mono text-[1.12rem] font-black leading-none tracking-[-0.07em] sm:text-[1.85rem] ${getGradeColor(grade)}`}
+        className={`font-mono text-[clamp(0.58rem,2.6vw,1.15rem)] font-black leading-none tracking-[-0.05em] ${getGradeColor(grade)}`}
       />
     </div>
   )
@@ -332,7 +367,7 @@ function SpecRow({ label, hint, note, value }) {
   return (
     <div className="grid grid-cols-[6.5rem_auto] items-center gap-2 border-b border-white/3 py-2 last:border-0 sm:grid-cols-[8.5rem_auto] sm:py-2.5">
       <div className="min-w-0">
-        <div className="text-[0.62rem] font-black uppercase tracking-[0.14em] text-white/40 sm:text-[0.72rem]">
+        <div className="text-[0.72rem] font-black uppercase tracking-[0.12em] text-white/45 sm:text-[0.82rem]">
           {label}
         </div>
         {hint ? (
