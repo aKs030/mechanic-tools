@@ -295,6 +295,7 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
                 >
                   {DB[s].iso}
                   {DB[s].din ? ` | ${DB[s].din}` : ''}
+                  {DB[s].hv ? ` | ${DB[s].hv}` : ''}
                 </span>
               </div>
             )
@@ -365,7 +366,11 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
             const isActive = s === selectedSize
             const swPrimary = DB[s].iso
             const swSecondary = DB[s].din
-            const swLabel = swSecondary ? `${swPrimary}|${swSecondary}` : swPrimary
+            const swHv = DB[s].hv
+            const swParts = [swPrimary]
+            if (swSecondary) swParts.push(swSecondary)
+            if (swHv) swParts.push(swHv)
+            const swLabel = swParts.join('|')
 
             return (
               <button
