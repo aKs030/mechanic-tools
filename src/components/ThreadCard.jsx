@@ -3,14 +3,29 @@ import { useEffect, useState, useRef } from 'react'
 import { CLEARANCE_DB, TORQUE_EXT_DB } from '../data/threads'
 
 const TORQUE_PRIORITY = {
-  4.6: 1,
-  5.6: 2,
-  6.8: 3,
-  8.8: 4,
-  10.9: 5,
-  12.9: 6,
-  'A2-70': 7,
-  'A4-80': 8,
+  5.6: 1,
+  8.8: 2,
+  10.9: 3,
+  12.9: 4,
+  'A2-70': 5,
+  'A4-80': 6,
+  YK: 10,
+  GA: 11,
+  GB: 12,
+  V: 13,
+  VW: 14,
+  S: 15,
+  SB: 16,
+}
+
+const MATERIAL_LABELS = {
+  YK: 'Ck 35',
+  GA: '24CrMo5',
+  GB: '21CrMoV57',
+  V: 'X22',
+  VW: 'X19',
+  S: 'X8',
+  SB: 'Nimonic',
 }
 
 function useAnimatedNumber(targetValue, duration = 400, decimals = 2) {
@@ -177,7 +192,13 @@ export default function ThreadCard({ size, data }) {
                 Schlüsselweite
               </span>
               <span className="text-[0.55rem] font-medium text-white/25 italic">
-                {data.din && data.hv ? 'ISO | DIN | HV' : data.din ? 'ISO | DIN' : data.hv ? 'ISO | HV' : 'ISO'}
+                {data.din && data.hv
+                  ? 'ISO | DIN | HV'
+                  : data.din
+                    ? 'ISO | DIN'
+                    : data.hv
+                      ? 'ISO | HV'
+                      : 'ISO'}
               </span>
             </div>
 
@@ -248,14 +269,14 @@ export default function ThreadCard({ size, data }) {
             <div className="flex items-center gap-1.5">
               <Gauge size={12} className="text-amber-300/50" />
               <h3 className="font-mono text-[0.6rem] font-black uppercase tracking-[0.12em] text-white/30 sm:text-[0.7rem]">
-                Drehmomente (NM)
+                Drehmomente (Nm)
               </h3>
               <span className="text-[0.42rem] font-bold uppercase tracking-[0.08em] text-white/12 sm:hidden">
                 µ=0,14
               </span>
             </div>
             <span className="hidden shrink-0 whitespace-nowrap text-right text-[0.45rem] font-bold text-white/10 uppercase tracking-widest sm:block">
-              Standard Reibwert µ=0,14
+              Standard-Reibwert µ=0,14
             </span>
           </div>
 
@@ -281,15 +302,27 @@ function SectionDivider() {
 }
 
 function TorqueTile({ grade, value }) {
+  const getGradeColor = g => {
+    if (g === '12.9') return 'text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]'
+    if (g === '10.9') return 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.3)]'
+    if (g.startsWith('A')) return 'text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]'
+    if (['GA', 'GB', 'V', 'VW', 'S', 'SB', 'YK'].includes(g))
+      return 'text-indigo-300 drop-shadow-[0_0_8px_rgba(165,180,252,0.3)]'
+    return 'text-amber-200/90'
+  }
+
   return (
-    <div className="flex min-w-0 flex-col items-center text-center sm:w-[4.15rem] sm:shrink-0">
-      <span className="w-full whitespace-nowrap text-[0.6rem] font-black tracking-[-0.05em] text-white sm:text-[0.82rem]">
+    <div className="flex min-w-0 flex-col items-center text-center sm:w-[5.2rem] sm:shrink-0">
+      <span className="w-full whitespace-nowrap text-[0.62rem] font-black tracking-[-0.05em] text-white/50 sm:text-[0.82rem]">
         {grade}
+      </span>
+      <span className="mb-0.5 text-[0.45rem] font-medium uppercase tracking-widest text-white/20 sm:text-[0.5rem]">
+        {MATERIAL_LABELS[grade] || ''}
       </span>
       <AnimatedNumber
         value={value}
         decimals={getTorqueDecimals(value)}
-        className="font-mono text-[1.15rem] font-black leading-none tracking-[-0.07em] text-amber-400 sm:text-[1.85rem]"
+        className={`font-mono text-[1.12rem] font-black leading-none tracking-[-0.07em] sm:text-[1.85rem] ${getGradeColor(grade)}`}
       />
     </div>
   )

@@ -23,7 +23,7 @@ export default function SearchBar({ sizes, onSelect, integrated = false }) {
   const normalizedQuery = query.trim().toLowerCase().replace(/^m\s*/i, '').replace(',', '.')
   const filtered = (normalizedQuery ? sizes.filter(s => s.includes(normalizedQuery)) : sizes).slice(
     0,
-    18,
+    18
   )
 
   const updatePopoverPosition = useCallback(() => {
@@ -35,7 +35,7 @@ export default function SearchBar({ sizes, onSelect, integrated = false }) {
     const width = Math.min(POPOVER_WIDTH, viewportWidth - VIEWPORT_PADDING * 2)
     const left = Math.min(
       Math.max(VIEWPORT_PADDING, rect.right - width),
-      viewportWidth - width - VIEWPORT_PADDING,
+      viewportWidth - width - VIEWPORT_PADDING
     )
 
     let top = rect.bottom + POPOVER_OFFSET
@@ -151,7 +151,7 @@ export default function SearchBar({ sizes, onSelect, integrated = false }) {
             ))}
           </div>
         ) : (
-          <div className="px-3 py-4 text-sm text-white/45">Keine passende Groesse gefunden.</div>
+          <div className="px-3 py-4 text-sm text-white/45">Keine passende Größe gefunden.</div>
         )}
       </div>
     </>
@@ -162,7 +162,7 @@ export default function SearchBar({ sizes, onSelect, integrated = false }) {
       <button
         ref={buttonRef}
         type="button"
-        aria-label="Gewindegroesse waehlen"
+        aria-label="Gewindegröße wählen"
         onClick={() => setIsOpen(open => !open)}
         className={
           integrated
@@ -173,7 +173,9 @@ export default function SearchBar({ sizes, onSelect, integrated = false }) {
         <Search size={18} />
       </button>
 
-      {isOpen && typeof document !== 'undefined' ? createPortal(popoverContent, document.body) : null}
+      {isOpen && typeof document !== 'undefined'
+        ? createPortal(popoverContent, document.body)
+        : null}
     </div>
   )
 }

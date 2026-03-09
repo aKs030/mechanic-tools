@@ -87,7 +87,12 @@
     background:
       radial-gradient(circle at 12% 0%, rgba(94, 231, 194, 0.12) 0%, transparent 34%),
       radial-gradient(circle at 100% 0%, rgba(90, 169, 255, 0.14) 0%, transparent 30%),
-      linear-gradient(180deg, rgba(17, 29, 49, 0.96) 0%, rgba(11, 21, 38, 0.96) 54%, rgba(6, 13, 24, 0.98) 100%);
+      linear-gradient(
+        180deg,
+        rgba(17, 29, 49, 0.96) 0%,
+        rgba(11, 21, 38, 0.96) 54%,
+        rgba(6, 13, 24, 0.98) 100%
+      );
     box-shadow:
       0 24px 80px rgba(3, 6, 18, 0.45),
       inset 0 1px 0 rgba(255, 255, 255, 0.05),
@@ -100,8 +105,7 @@
 
   .card-surface {
     border-color: rgba(255, 255, 255, 0.06);
-    background:
-      linear-gradient(180deg, rgba(9, 20, 38, 0.88) 0%, rgba(5, 12, 24, 0.94) 100%);
+    background: linear-gradient(180deg, rgba(9, 20, 38, 0.88) 0%, rgba(5, 12, 24, 0.94) 100%);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.03),
       0 12px 36px rgba(1, 4, 12, 0.22);
@@ -146,6 +150,37 @@
     transform: translateY(42%);
     opacity: 0.95;
   }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(10px, -20px) scale(1.05);
+  }
+  66% {
+    transform: translate(-15px, 10px) scale(0.95);
+  }
+}
+
+@keyframes float-alt {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-20px, 15px) scale(1.1);
+  }
+}
+
+.animate-float {
+  animation: float 18s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-alt 24s ease-in-out infinite;
 }
 
 .glow-icon {

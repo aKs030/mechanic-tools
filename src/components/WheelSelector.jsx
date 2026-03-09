@@ -29,14 +29,15 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
     () =>
       sizes.filter(sizeStr => {
         const size = Number(sizeStr)
+        // Focus on medium and large sizes (starting from M16), as M6-M12 are not needed for quick access
         return Number.isFinite(size) && size >= 16
       }),
-    [sizes],
+    [sizes]
   )
 
-  const quickSizesFromM16 = useMemo(
+  const quickSizesDisplay = useMemo(
     () => quickSourceSizes.slice(0, quickColumns * 2),
-    [quickSourceSizes, quickColumns],
+    [quickSourceSizes, quickColumns]
   )
 
   // Dynamic color coding based on thread size
@@ -291,11 +292,11 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
                   </span>
                 </div>
                 <span
-                  className={`font-mono text-[10px] mt-1 font-medium tracking-tight ${isSelected ? 'text-white/60' : 'text-gray-600'} transition-colors duration-500`}
+                  className={`font-mono text-[9.5px] -mt-0.5 font-bold tracking-tighter ${isSelected ? 'text-white/70' : 'text-gray-600'} transition-colors duration-500`}
                 >
                   {DB[s].iso}
-                  {DB[s].din ? ` | ${DB[s].din}` : ''}
-                  {DB[s].hv ? ` | ${DB[s].hv}` : ''}
+                  {DB[s].din ? `|${DB[s].din}` : ''}
+                  {DB[s].hv ? `|${DB[s].hv}` : ''}
                 </span>
               </div>
             )
@@ -332,7 +333,7 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
           <button
             onClick={handleNext}
             disabled={sizes.indexOf(selectedSize) === sizes.length - 1}
-            aria-label="Naechste Groesse"
+            aria-label="Nächste Größe"
             className="group flex h-12 w-14 items-center justify-center rounded-full text-gray-400 transition-all duration-150 hover:bg-white/10 hover:text-white active:scale-90 active:bg-white/20 disabled:pointer-events-none disabled:opacity-30"
           >
             <svg
@@ -362,7 +363,7 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
             justifyItems: 'center',
           }}
         >
-          {quickSizesFromM16.map(s => {
+          {quickSizesDisplay.map(s => {
             const isActive = s === selectedSize
             const swPrimary = DB[s].iso
             const swSecondary = DB[s].din
@@ -383,11 +384,15 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
                 className={`w-full rounded-lg border px-2.5 py-2 text-center leading-tight transition-all duration-200 active:scale-95 ${
                   isActive
                     ? 'border-accent/50 bg-accent/14 shadow-[0_0_24px_rgba(94,231,194,0.22)]'
-                    : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+                    : 'border-white/10 bg-white/3 hover:border-white/20 hover:bg-white/6'
                 }`}
               >
-                <div className="font-mono text-[0.86rem] font-black tracking-tight text-white">M{s}</div>
-                <div className={`text-[0.64rem] font-semibold ${isActive ? 'text-accent2/85' : 'text-white/55'}`}>
+                <div className="font-mono text-[0.86rem] font-black tracking-tight text-white">
+                  M{s}
+                </div>
+                <div
+                  className={`text-[0.64rem] font-semibold ${isActive ? 'text-accent2/85' : 'text-white/55'}`}
+                >
                   SW{swLabel}
                 </div>
               </button>

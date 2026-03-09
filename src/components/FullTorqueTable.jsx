@@ -35,13 +35,13 @@ export default function FullTorqueTable() {
               ISO-Regelgewinde im direkten Vergleich
             </h2>
             <p className="mt-2 text-sm leading-5 text-white/55">
-              Filtere nach Groesse, sortiere die Reihe und blende bei Bedarf die
-              Durchgangsbohrungen ein.
+              Filtere nach Größe, sortiere die Reihe und blende bei Bedarf die Durchgangsbohrungen
+              ein.
             </p>
           </div>
 
           <div className="grid gap-2 sm:grid-cols-3">
-            <TableStat label="Datensaetze" value={`${Object.keys(DB).length}`} />
+            <TableStat label="Datensätze" value={`${Object.keys(DB).length}`} />
             <TableStat label="Gefiltert" value={`${sizes.length}`} />
             <TableStat label="Sortierung" value={sortConfig.direction === 'asc' ? 'Auf' : 'Ab'} />
           </div>
@@ -77,7 +77,7 @@ export default function FullTorqueTable() {
                 direction={sortConfig.direction}
                 onClick={() => handleSort('size')}
               >
-                Groesse
+                Größe
               </SortableHead>
               <HeadCell>Steigung</HeadCell>
               <HeadCell>Kernloch</HeadCell>
@@ -86,12 +86,19 @@ export default function FullTorqueTable() {
               <HeadCell tone="text-amber-300">8.8</HeadCell>
               <HeadCell tone="text-amber-300">10.9</HeadCell>
               <HeadCell tone="text-amber-300">12.9</HeadCell>
+              <HeadCell tone="text-indigo-300">GA</HeadCell>
+              <HeadCell tone="text-indigo-300">GB</HeadCell>
+              <HeadCell tone="text-indigo-300">VW</HeadCell>
+              <HeadCell tone="text-indigo-300">YK</HeadCell>
             </tr>
           </thead>
           <tbody>
             {sizes.length === 0 ? (
               <tr>
-                <td colSpan={showClearance ? 8 : 7} className="px-5 py-12 text-center text-sm text-white/40">
+                <td
+                  colSpan={showClearance ? 8 : 7}
+                  className="px-5 py-12 text-center text-sm text-white/40"
+                >
                   Keine Ergebnisse gefunden.
                 </td>
               </tr>
@@ -117,11 +124,17 @@ export default function FullTorqueTable() {
                       </td>
                     )}
                     <td className="px-5 py-4 font-mono text-sm text-white/62">
-                      SW {d.iso}{d.din ? ` / ${d.din}` : ''}{d.hv ? ` / ${d.hv}` : ''}
+                      SW {d.iso}
+                      {d.din ? ` / ${d.din}` : ''}
+                      {d.hv ? ` / ${d.hv}` : ''}
                     </td>
                     <TorqueCell value={t['8.8']} />
                     <TorqueCell value={t['10.9']} />
                     <TorqueCell value={t['12.9']} />
+                    <TorqueCell value={t['GA']} tone="text-indigo-200" />
+                    <TorqueCell value={t['GB']} tone="text-indigo-200" />
+                    <TorqueCell value={t['VW']} tone="text-indigo-200" />
+                    <TorqueCell value={t['YK']} tone="text-indigo-200" />
                   </tr>
                 )
               })
@@ -131,8 +144,15 @@ export default function FullTorqueTable() {
       </div>
 
       <div className="border-t border-white/8 bg-black/20 px-4 py-3 text-xs sm:px-5 sm:py-4 sm:text-sm text-white/42">
+        <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.65rem] font-bold uppercase tracking-wider text-white/25">
+          <span>GA: 24CrMo5</span>
+          <span>GB: 21CrMoV57</span>
+          <span>V: X22 CrMoV121</span>
+          <span>VW: X19 CrMo VNbN</span>
+          <span>YK: Ck 35</span>
+        </div>
         Werte basieren auf DIN 13-1, ISO 261 und ISO 273 Richtwerten. Drehmomente sind als
-        praxisnahe Orientierung zu lesen.
+        praxisnahe Orientierung zu lesen (Reibungszahl µ=0,14).
       </div>
     </div>
   )
@@ -173,13 +193,9 @@ function SortableHead({ children, active, direction, onClick }) {
   )
 }
 
-function TorqueCell({ value }) {
+function TorqueCell({ value, tone = 'text-amber-200' }) {
   return (
-    <td
-      className={`px-5 py-4 font-mono text-sm font-bold ${
-        value ? 'text-amber-200' : 'text-white/24'
-      }`}
-    >
+    <td className={`px-5 py-4 font-mono text-sm font-bold ${value ? tone : 'text-white/24'}`}>
       {value || '-'}
     </td>
   )
