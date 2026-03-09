@@ -177,32 +177,38 @@ export default function ThreadCard({ size, data }) {
                 Schlüsselweite
               </span>
               <span className="text-[0.55rem] font-medium text-white/25 italic">
-                {data.din ? 'ISO | DIN' : 'ISO'}
+                {data.din && data.hv ? 'ISO | DIN | HV' : data.din ? 'ISO | DIN' : data.hv ? 'ISO | HV' : 'ISO'}
               </span>
             </div>
 
             <div className="flex items-center text-center">
-              {data.din ? (
-                <div className="flex items-center gap-3 sm:gap-5">
-                  <AnimatedNumber
-                    value={data.iso}
-                    decimals={1}
-                    className="font-mono text-4xl font-black tracking-tighter text-accent sm:text-6xl"
-                  />
-                  <div className="h-10 w-px bg-white/10 sm:h-14" />
-                  <AnimatedNumber
-                    value={data.din}
-                    decimals={1}
-                    className="font-mono text-4xl font-black tracking-tighter text-white/50 sm:text-6xl"
-                  />
-                </div>
-              ) : (
+              <div className="flex items-center gap-2 sm:gap-3">
                 <AnimatedNumber
                   value={data.iso}
                   decimals={1}
                   className="font-mono text-4xl font-black tracking-tighter text-accent sm:text-6xl"
                 />
-              )}
+                {data.din && (
+                  <>
+                    <div className="h-8 w-px bg-white/10 sm:h-10" />
+                    <AnimatedNumber
+                      value={data.din}
+                      decimals={1}
+                      className="font-mono text-3xl font-black tracking-tighter text-white/50 sm:text-5xl"
+                    />
+                  </>
+                )}
+                {data.hv && (
+                  <>
+                    <div className="h-8 w-px bg-white/10 sm:h-10" />
+                    <AnimatedNumber
+                      value={data.hv}
+                      decimals={1}
+                      className="font-mono text-3xl font-black tracking-tighter text-amber-400/50 sm:text-5xl"
+                    />
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

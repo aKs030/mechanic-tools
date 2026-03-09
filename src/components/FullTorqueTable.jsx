@@ -116,7 +116,9 @@ export default function FullTorqueTable() {
                         {c ? `${c.fine} / ${c.medium} / ${c.coarse}` : '-'}
                       </td>
                     )}
-                    <td className="px-5 py-4 font-mono text-sm text-white/62">SW {d.iso}</td>
+                    <td className="px-5 py-4 font-mono text-sm text-white/62">
+                      SW {d.iso}{d.din ? ` / ${d.din}` : ''}{d.hv ? ` / ${d.hv}` : ''}
+                    </td>
                     <TorqueCell value={t['8.8']} />
                     <TorqueCell value={t['10.9']} />
                     <TorqueCell value={t['12.9']} />
