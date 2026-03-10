@@ -11,6 +11,7 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
   const scrollingTimeoutRef = useRef(null)
   const scrollRafRef = useRef(0)
   const isProgrammaticScroll = useRef(false)
+  const isUserScrolling = useRef(false)
   const selectedSizeRef = useRef(selectedSize)
   const [quickColumns, setQuickColumns] = useState(4)
 
@@ -108,11 +109,14 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
     const itemWidth = 72
     const totalWidth = sizes.length * itemWidth
 
-    // Infinite loop jump
-    if (track.scrollLeft < totalWidth * 0.5) {
-      track.scrollLeft += totalWidth
-    } else if (track.scrollLeft > totalWidth * 1.5) {
-      track.scrollLeft -= totalWidth
+    // Infinite loop jump - ONLY if user is actively scrolling manually (not smooth-scrolling programmatically)
+    // because setting track.scrollLeft abruptly cancels any active `behavior: 'smooth'` animation!
+    if (!isProgrammaticScroll.current) {
+      if (track.scrollLeft < totalWidth * 0.5) {
+        track.scrollLeft += totalWidth
+      } else if (track.scrollLeft > totalWidth * 1.5) {
+        track.scrollLeft -= totalWidth
+      }
     }
 
     const closestIdx = updateVisuals()
@@ -123,14 +127,18 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
       onSelect(actualSize)
     }
 
-    // Reset programmatic flag once scrolling stops
+    // Reset programmatic and user scroll flags once scrolling stops
     if (scrollingTimeoutRef.current) clearTimeout(scrollingTimeoutRef.current)
     scrollingTimeoutRef.current = setTimeout(() => {
       isProgrammaticScroll.current = false
+      isUserScrolling.current = false
     }, 150)
   }, [infiniteSizes, onSelect, selectedSize, sizes.length, updateVisuals])
 
   const handleScroll = useCallback(() => {
+    if (!isProgrammaticScroll.current) {
+      isUserScrolling.current = true
+    }
     if (scrollRafRef.current) return
     scrollRafRef.current = requestAnimationFrame(() => {
       scrollRafRef.current = 0
@@ -155,6 +163,8 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
   // When selectedSize changes from Quick Buttons, spin the wheel smoothly
   useEffect(() => {
     if (!trackRef.current) return
+    if (isUserScrolling.current) return // Avoid fighting user dragging/scrolling
+
     // Find index in the middle section to keep it centered
     const idx = sizes.indexOf(selectedSize) + sizes.length
     const item = itemRefs.current[idx]
