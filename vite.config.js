@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         id: '/',
         name: 'Mechanic Tools Premium',
@@ -19,8 +19,8 @@ export default defineConfig({
           'Premium Workshop Suite für Mechaniker. Gewinde-Rechner, Tabellen und Kamera-Scanner in einem Tool.',
         theme_color: '#09111f',
         background_color: '#09111f',
-        display: 'standalone',
-        orientation: 'portrait',
+        display: 'standalone', // Sorgt dafür, dass die Browser-Leiste verschwindet
+        orientation: 'portrait', // Zwingt die App ins Hochformat (ideal für diese UI)
         start_url: '/',
         scope: '/',
         lang: 'de-DE',
