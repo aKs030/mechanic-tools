@@ -112,9 +112,11 @@ export default function WheelSelector({ sizes, selectedSize, onSelect }) {
     // Infinite loop jump - ONLY if user is actively scrolling manually (not smooth-scrolling programmatically)
     // because setting track.scrollLeft abruptly cancels any active `behavior: 'smooth'` animation!
     if (!isProgrammaticScroll.current) {
-      if (track.scrollLeft < totalWidth * 0.5) {
+      // Widen the boundaries (0.25 to 1.75) to prevent touch-momentum flip-flop.
+      // When jumping back by 1.0, it lands safely at 0.75, far from the 0.25 boundary.
+      if (track.scrollLeft < totalWidth * 0.25) {
         track.scrollLeft += totalWidth
-      } else if (track.scrollLeft > totalWidth * 1.5) {
+      } else if (track.scrollLeft > totalWidth * 1.75) {
         track.scrollLeft -= totalWidth
       }
     }
